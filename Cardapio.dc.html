@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Cardápio — Sagrado Fogão</title>
+<meta name="description" content="Cardápio do Sagrado Fogão: entradas, principais, pratos da brasa, vegetarianos, sobremesas, drinks, vinhos e bebidas sem álcool.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:150px}
+body{margin:0;background:#161411;color:#F1E9DC;font-family:'Hanken Grotesk',sans-serif;-webkit-font-smoothing:antialiased;animation:sfIn .7s ease both}
+@keyframes sfIn{from{opacity:0}to{opacity:1}}
+a{color:#A54F32}a:hover{color:#642C2A}
+:focus-visible{outline:2px solid #C8714F;outline-offset:3px}
+::selection{background:#A54F32;color:#FAF7F1}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+
+<dc-import name="Header" active="cardapio" hint-size="100%,1px"></dc-import>
+
+<main>
+<section data-screen-label="Hero cardápio" style="position:relative;min-height:78vh;display:flex;align-items:flex-end;overflow:hidden;background:#1d1814;color:#6F5E4F">
+  <div data-parallax="0.15" style="position:absolute;inset:-10% 0"><image-slot id="menu-hero" src="images/banquete-fogo.jpg" shape="rect" placeholder="Mesa vista de cima — vários pratos para compartilhar, mãos servindo"></image-slot></div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(22,20,17,.6) 0%,rgba(22,20,17,.25) 40%,rgba(22,20,17,.9) 100%)"></div>
+  <div style="position:relative;pointer-events:none;width:100%;max-width:1440px;margin:0 auto;padding:180px clamp(20px,4vw,56px) clamp(56px,7vw,96px);color:#F1E9DC;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:28px 64px">
+    <div>
+      <p style="margin:0 0 24px;font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#E6D9C6">Almoço &amp; jantar</p>
+      <h1 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(58px,10vw,168px);line-height:.9;letter-spacing:-.02em">Nosso cardápio</h1>
+    </div>
+    <p style="margin:0;max-width:380px;font-size:clamp(16px,1.3vw,19px);line-height:1.6;color:#E6D9C6">Ingredientes brasileiros, fogo e técnica em constante movimento.</p>
+  </div>
+</section>
+
+<nav aria-label="Categorias do cardápio" style="position:sticky;top:72px;z-index:40;background:#161411;border-bottom:1px solid rgba(241,233,220,.1)">
+  <div style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px);display:flex;gap:clamp(20px,2.6vw,40px);overflow-x:auto;scrollbar-width:none">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="8">
+      <a href="{{ t.href }}" style="flex:0 0 auto;display:flex;align-items:center;height:56px;font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;white-space:nowrap;color:{{ t.color }};border-bottom:1px solid {{ t.border }};transition:color .3s ease" style-hover="color:#F1E9DC">{{ t.title }}</a>
+    </sc-for>
+  </div>
+</nav>
+
+<div data-screen-label="Cozinha" style="background:#F1E9DC;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px)">
+    <sc-for list="{{ food }}" as="c" hint-placeholder-count="3">
+      <section id="{{ c.id }}" aria-labelledby="{{ c.hid }}" style="display:flex;flex-wrap:wrap;gap:40px clamp(48px,7vw,120px);padding:clamp(72px,9vw,128px) 0;border-bottom:1px solid rgba(71,55,45,.18)">
+        <div style="flex:1 1 320px;min-width:0;max-width:460px">
+          <div style="position:sticky;top:170px">
+            <span style="font-size:12px;letter-spacing:.2em;color:#A54F32">{{ c.n }}</span>
+            <h2 id="{{ c.hid }}" style="margin:16px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(42px,4.6vw,72px);line-height:1;letter-spacing:-.01em">{{ c.title }}</h2>
+            <p style="margin:20px 0 0;font-size:15px;line-height:1.65;color:#47372D;text-wrap:pretty">{{ c.intro }}</p>
+            <sc-if value="{{ c.photo }}" hint-placeholder-val="{{ false }}">
+              <figure style="margin:40px 0 0">
+                <div data-reveal="img" style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#E2D6C4;color:#8A7563"><image-slot id="{{ c.photo.id }}" src="{{ c.photo.src }}" shape="rect" placeholder="{{ c.photo.ph }}"></image-slot></div>
+                <figcaption style="margin-top:12px;font-size:12px;letter-spacing:.06em;color:#6B5848">{{ c.photo.cap }}</figcaption>
+              </figure>
+            </sc-if>
+          </div>
+        </div>
+        <ul style="flex:1.6 1 480px;min-width:0;list-style:none;margin:0;padding:0">
+          <sc-for list="{{ c.items }}" as="i" hint-placeholder-count="5">
+            <li data-reveal="up" style="padding:28px 0;border-top:1px solid rgba(71,55,45,.18)">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:24px">
+                <h3 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(24px,2vw,30px);line-height:1.15">{{ i.n }} <span style="font-family:'Hanken Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#A54F32;vertical-align:middle;margin-left:8px">{{ i.tag }}</span></h3>
+                <span style="flex:0 0 auto;font-family:'Instrument Serif',serif;font-size:22px">{{ i.p }}</span>
+              </div>
+              <p style="margin:10px 0 0;max-width:560px;font-size:15px;line-height:1.6;color:#47372D">{{ i.d }}</p>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+    </sc-for>
+  </div>
+</div>
+
+<div data-screen-label="Bar" style="background:#161411;color:#F1E9DC">
+  <div style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px)">
+    <sc-for list="{{ bar }}" as="c" hint-placeholder-count="2">
+      <section id="{{ c.id }}" aria-labelledby="{{ c.hid }}" style="display:flex;flex-wrap:wrap;gap:40px clamp(48px,7vw,120px);padding:clamp(72px,9vw,128px) 0;border-bottom:1px solid rgba(241,233,220,.1)">
+        <div style="flex:1 1 320px;min-width:0;max-width:460px">
+          <div style="position:sticky;top:170px">
+            <span style="font-size:12px;letter-spacing:.2em;color:#C8714F">{{ c.n }}</span>
+            <h2 id="{{ c.hid }}" style="margin:16px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(42px,4.6vw,72px);line-height:1;letter-spacing:-.01em">{{ c.title }}</h2>
+            <p style="margin:20px 0 0;font-size:15px;line-height:1.65;color:#C9BDAC;text-wrap:pretty">{{ c.intro }}</p>
+            <sc-if value="{{ c.photo }}" hint-placeholder-val="{{ false }}">
+              <figure style="margin:40px 0 0">
+                <div data-reveal="img" style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#231D18;color:#6F5E4F"><image-slot id="{{ c.photo.id }}" src="{{ c.photo.src }}" shape="rect" placeholder="{{ c.photo.ph }}"></image-slot></div>
+                <figcaption style="margin-top:12px;font-size:12px;letter-spacing:.06em;color:#9C8F7E">{{ c.photo.cap }}</figcaption>
+              </figure>
+            </sc-if>
+          </div>
+        </div>
+        <div style="flex:1.6 1 480px;min-width:0">
+          <sc-if value="{{ c.cols }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;justify-content:flex-end;gap:24px;padding-bottom:12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9C8F7E">{{ c.cols }}</div>
+          </sc-if>
+          <ul style="list-style:none;margin:0;padding:0">
+            <sc-for list="{{ c.items }}" as="i" hint-placeholder-count="5">
+              <li data-reveal="up" style="padding:28px 0;border-top:1px solid rgba(241,233,220,.12)">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:24px">
+                  <h3 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(24px,2vw,30px);line-height:1.15">{{ i.n }}</h3>
+                  <span style="flex:0 0 auto;font-family:'Instrument Serif',serif;font-size:22px">{{ i.p }}</span>
+                </div>
+                <p style="margin:10px 0 0;max-width:560px;font-size:15px;line-height:1.6;color:#C9BDAC">{{ i.d }}</p>
+              </li>
+            </sc-for>
+          </ul>
+        </div>
+      </section>
+    </sc-for>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:32px;padding:clamp(64px,8vw,112px) 0">
+      <p style="margin:0;max-width:560px;font-size:14px;line-height:1.7;color:#9C8F7E">O cardápio muda conforme a estação e a disponibilidade dos produtores. Informe nossa equipe sobre alergias ou restrições alimentares. Taxa de serviço opcional de 13%.</p>
+      <a href="Reservas.dc.html" style="display:inline-flex;align-items:center;gap:14px;white-space:nowrap;height:58px;padding:0 34px;background:#A54F32;color:#FAF7F1;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:background .3s ease, gap .3s ease" style-hover="background:#8C4129;gap:20px;color:#FAF7F1">Reservar uma mesa <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</div>
+</main>
+
+<dc-import name="Footer" hint-size="100%,520px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const FOOD = [
+  { id: 'para-comecar', title: 'Para começar', intro: 'Pequenos pratos para abrir a mesa e dividir.', items: [
+    { n: 'Pão de fermentação natural na brasa', d: 'Manteiga de garrafa e flor de sal.', p: 'R$ 24' },
+    { n: 'Pastel de costela', d: 'Massa fina, costela desfiada e pimenta biquinho.', p: 'R$ 36' },
+    { n: 'Tartare de peixe do dia', d: 'Leite de tigre de tucupi, cebola roxa e chips de mandioca.', p: 'R$ 52' },
+    { n: 'Abóbora tostada', d: 'Coalhada fresca, mel de engenho e castanha-do-pará.', p: 'R$ 38', tag: 'Vegetariano' },
+    { n: 'Bolinho de arroz com queijo da Canastra', d: 'Maionese de alho negro.', p: 'R$ 34' },
+    { n: 'Coração de galinha na brasa', d: 'Farofa de pimenta e limão-cravo.', p: 'R$ 32' }] },
+  { id: 'principais', title: 'Principais', intro: 'Receitas de família revisitadas, servidas para uma pessoa.', photo: { id: 'menu-principais', src: 'images/costela.jpg', ph: 'Costela na brasa — prato servido, luz lateral', cap: 'Costela na Brasa' }, items: [
+    { n: 'Costela na Brasa', d: 'Costela bovina assada lentamente, purê de mandioca defumada, cebola tostada e molho da própria carne.', p: 'R$ 89' },
+    { n: 'Peixe do Dia', d: 'Peixe fresco grelhado, arroz cremoso de coco, banana-da-terra e vinagrete de ervas.', p: 'R$ 78' },
+    { n: 'Arroz de Pato', d: 'Arroz caldoso, pato confitado, linguiça artesanal, ervas frescas e farofa crocante.', p: 'R$ 84' },
+    { n: 'Galinhada do Sagrado', d: 'Arroz com açafrão-da-terra, galinha caipira, pequi suave e cheiro-verde.', p: 'R$ 76' },
+    { n: 'Moqueca de camarão e banana-da-terra', d: 'Leite de coco, dendê, coentro, arroz branco e pirão.', p: 'R$ 92' }] },
+  { id: 'da-brasa', title: 'Da brasa', intro: 'Cortes e ingredientes que passam pela lenha e pelo tempo.', photo: { id: 'menu-brasa', src: 'images/polvo-grelha.jpg', ph: 'Polvo na grelha sobre brasa viva', cap: 'Polvo na brasa' }, items: [
+    { n: 'Polvo na brasa', d: 'Batata-doce assada, páprica defumada e aioli de limão-cravo.', p: 'R$ 112' },
+    { n: 'Ancho maturado, 350 g', d: 'Tutano assado e chimichurri de ervas brasileiras.', p: 'R$ 136' },
+    { n: 'Barriga de porco laqueada', d: 'Melaço de cana, purê de feijão-manteiguinha e couve crocante.', p: 'R$ 82' },
+    { n: 'Cupim curado por doze horas', d: 'Pão de queijo de frigideira e mostarda de cachaça.', p: 'R$ 86' },
+    { n: 'Legumes da estação na brasa', d: 'Para acompanhar. Azeite de ervas e farofa de castanhas.', p: 'R$ 32', tag: 'Vegetariano' }] },
+  { id: 'vegetarianos', title: 'Vegetarianos', intro: 'Pratos completos, pensados a partir dos vegetais.', items: [
+    { n: 'Nhoque de Mandioquinha', d: 'Nhoque artesanal, manteiga de ervas, queijo curado brasileiro e castanhas tostadas.', p: 'R$ 68' },
+    { n: 'Moqueca de caju e pupunha', d: 'Leite de coco, dendê e arroz de castanha.', p: 'R$ 66' },
+    { n: 'Risoto de milho verde', d: 'Queijo da Serra da Canastra e pipoca de milho crioulo.', p: 'R$ 64' },
+    { n: 'Cogumelos na brasa', d: 'Polenta mole, ovo caipira de gema mole e crocante de alho.', p: 'R$ 62' }] },
+  { id: 'sobremesas', title: 'Sobremesas', intro: 'Doces de memória com um último toque de fogo.', photo: { id: 'menu-sobremesas', src: 'images/pudim-tapioca.jpg', ph: 'Pudim de tapioca com calda escura', cap: 'Pudim de tapioca' }, items: [
+    { n: 'Pudim de tapioca', d: 'Calda de rapadura e coco queimado.', p: 'R$ 32' },
+    { n: 'Goiabada cascão na brasa', d: 'Sorvete de queijo da Canastra.', p: 'R$ 34' },
+    { n: 'Mousse de chocolate amazônico 70%', d: 'Cupuaçu e flor de sal.', p: 'R$ 36' },
+    { n: 'Bolo de fubá cremoso', d: 'Sorvete de erva-doce e doce de leite.', p: 'R$ 30' },
+    { n: 'Cocada de forno', d: 'Sorvete de limão-cravo.', p: 'R$ 28' }] }
+];
+const BAR = [
+  { id: 'drinks', title: 'Drinks', intro: 'Coquetéis autorais com destilados e frutas brasileiras.', photo: { id: 'menu-drinks', src: 'images/coquetel-maracuja.jpg', ph: 'Coquetel âmbar com fumaça, balcão escuro', cap: 'Sagrado' }, items: [
+    { n: 'Sagrado', d: 'Cachaça envelhecida em amburana, mel de cacau, limão-cravo e fumaça de lenha.', p: 'R$ 42' },
+    { n: 'Rabo de galo da casa', d: 'Cachaça, vermute tinto, amaro e bitter de cumaru.', p: 'R$ 38' },
+    { n: 'Caipirinha de caju e cumaru', d: 'Cachaça prata, caju fresco e xarope de cumaru.', p: 'R$ 36' },
+    { n: 'Negroni de jambu', d: 'Gim, bitter, vermute e infusão de jambu.', p: 'R$ 44' },
+    { n: 'Brasa', d: 'Cachaça prata, cajá, pimenta-de-cheiro defumada e tônica.', p: 'R$ 40' }] },
+  { id: 'vinhos', title: 'Vinhos', intro: 'Seleção com foco em produtores brasileiros. Carta completa à mesa.', cols: 'Taça · Garrafa', items: [
+    { n: 'Espumante Brut', d: 'Chardonnay e Pinot Noir · Serra Gaúcha', p: 'R$ 38 · R$ 178' },
+    { n: 'Sauvignon Blanc', d: 'Branco · Campanha Gaúcha', p: 'R$ 36 · R$ 168' },
+    { n: 'Rosé de Merlot', d: 'Rosé · Serra Catarinense', p: 'R$ 34 · R$ 158' },
+    { n: 'Pinot Noir', d: 'Tinto · Serra Gaúcha', p: 'R$ 42 · R$ 198' },
+    { n: 'Syrah de colheita de inverno', d: 'Tinto · Sul de Minas', p: 'R$ 48 · R$ 236' },
+    { n: 'Tannat', d: 'Tinto · Campanha Gaúcha', p: 'R$ 214' }] },
+  { id: 'sem-alcool', title: 'Sem álcool', intro: 'Bebidas da casa, preparadas no dia.', items: [
+    { n: 'Limonada de limão-cravo e rapadura', d: 'Gelo, hortelã e água com gás.', p: 'R$ 18' },
+    { n: 'Soda de cajá e gengibre', d: 'Xarope da casa e água gaseificada.', p: 'R$ 20' },
+    { n: 'Mate gelado', d: 'Laranja-baía e hortelã.', p: 'R$ 16' },
+    { n: 'Kombucha de hibisco', d: 'Fermentada na casa.', p: 'R$ 22' },
+    { n: 'Café coado', d: 'Grãos do Sul de Minas, torra média.', p: 'R$ 12' },
+    { n: 'Água mineral', d: 'Com ou sem gás, 500 ml.', p: 'R$ 9' }] }
+];
+class Component extends DCLogic {
+  state = { active: 'para-comecar' };
+  componentDidMount() {
+    this.onScroll = () => {
+      let cur = 'para-comecar';
+      [...FOOD, ...BAR].forEach(c => { const el = document.getElementById(c.id); if (el && el.getBoundingClientRect().top < 200) cur = c.id; });
+      if (cur !== this.state.active) this.setState({ active: cur });
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+  }
+  componentWillUnmount() { window.removeEventListener('scroll', this.onScroll); }
+  renderVals() {
+    const all = [...FOOD, ...BAR];
+    const num = c => String(all.indexOf(c) + 1).padStart(2, '0');
+    const map = c => ({ ...c, n: num(c), hid: c.id + '-t', photo: c.photo || false, cols: c.cols || false, items: c.items.map(i => ({ ...i, tag: i.tag || '' })) });
+    return {
+      food: FOOD.map(map), bar: BAR.map(map),
+      tabs: all.map(c => ({ title: c.title, href: '#' + c.id, color: c.id === this.state.active ? '#F1E9DC' : '#9C8F7E', border: c.id === this.state.active ? '#A54F32' : 'transparent' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Contato — Sagrado Fogão</title>
+<meta name="description" content="Fale com o Sagrado Fogão: endereço, telefone, WhatsApp, Instagram, e-mail e horários. Rua Harmonia, 327 — Vila Madalena, São Paulo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#161411;color:#F1E9DC;font-family:'Hanken Grotesk',sans-serif;-webkit-font-smoothing:antialiased;animation:sfIn .7s ease both}
+@keyframes sfIn{from{opacity:0}to{opacity:1}}
+@keyframes sfStep{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+a{color:#A54F32}a:hover{color:#642C2A}
+:focus-visible{outline:2px solid #C8714F;outline-offset:3px}
+::selection{background:#A54F32;color:#FAF7F1}
+input,select,textarea,button{font:inherit}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+
+<dc-import name="Header" active="contato" hint-size="100%,1px"></dc-import>
+
+<main>
+<section data-screen-label="Hero Contato" style="background:#161411;color:#F1E9DC">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(150px,18vw,220px) clamp(20px,4vw,56px) clamp(72px,9vw,128px);display:flex;flex-wrap:wrap;gap:clamp(48px,7vw,120px)">
+    <div style="flex:1.3 1 520px;min-width:0">
+      <p style="margin:0 0 24px;font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#C8714F">Contato</p>
+      <h1 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(58px,10vw,168px);line-height:.9;letter-spacing:-.02em">Vamos<br>conversar.</h1>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:40px 48px;margin-top:clamp(56px,7vw,104px)">
+        <div>
+          <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#9C8F7E">Endereço</p>
+          <address style="font-style:normal;font-family:'Instrument Serif',serif;font-size:24px;line-height:1.35">Rua Harmonia, 327<br>Vila Madalena<br>São Paulo — SP</address>
+          <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Rua+Harmonia+327+Vila+Madalena+Sao+Paulo" target="_blank" rel="noopener" style="display:inline-block;margin-top:12px;color:#C8714F;text-decoration:none;font-size:14px;padding:8px 0" style-hover="color:#F1E9DC">Como chegar →</a>
+        </div>
+        <div>
+          <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#9C8F7E">Fale com a gente</p>
+          <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column">
+            <li><a href="tel:+551138163270" style="display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid rgba(241,233,220,.12);color:#F1E9DC;text-decoration:none;font-size:15px" style-hover="color:#C8714F"><span style="color:#9C8F7E">Telefone</span>(11) 3816-3270</a></li>
+            <li><a href="https://wa.me/5511974123270" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid rgba(241,233,220,.12);color:#F1E9DC;text-decoration:none;font-size:15px" style-hover="color:#C8714F"><span style="color:#9C8F7E">WhatsApp</span>(11) 97412-3270</a></li>
+            <li><a href="https://instagram.com/sagradofogao" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid rgba(241,233,220,.12);color:#F1E9DC;text-decoration:none;font-size:15px" style-hover="color:#C8714F"><span style="color:#9C8F7E">Instagram</span>@sagradofogao</a></li>
+            <li><a href="mailto:contato@sagradofogao.com.br" style="display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid rgba(241,233,220,.12);color:#F1E9DC;text-decoration:none;font-size:15px;overflow-wrap:anywhere" style-hover="color:#C8714F"><span style="color:#9C8F7E">E-mail</span>contato@sagradofogao.com.br</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div style="flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:32px">
+      <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#231D18;color:#6F5E4F"><image-slot id="contato-fachada" src="images/salao.jpg" shape="rect" placeholder="Fachada na Rua Harmonia — portas abertas, luz quente à noite"></image-slot></div>
+      <div>
+        <p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#9C8F7E">Horários</p>
+        <dl style="margin:0;display:grid;grid-template-columns:auto 1fr;font-size:14px">
+          <dt style="padding:10px 16px 10px 0;border-bottom:1px solid rgba(241,233,220,.1);color:#C9BDAC">Terça a quinta</dt><dd style="margin:0;padding:10px 0;border-bottom:1px solid rgba(241,233,220,.1);text-align:right">12h–15h • 19h–23h</dd>
+          <dt style="padding:10px 16px 10px 0;border-bottom:1px solid rgba(241,233,220,.1);color:#C9BDAC">Sexta</dt><dd style="margin:0;padding:10px 0;border-bottom:1px solid rgba(241,233,220,.1);text-align:right">12h–15h • 19h–00h</dd>
+          <dt style="padding:10px 16px 10px 0;border-bottom:1px solid rgba(241,233,220,.1);color:#C9BDAC">Sábado</dt><dd style="margin:0;padding:10px 0;border-bottom:1px solid rgba(241,233,220,.1);text-align:right">12h–00h</dd>
+          <dt style="padding:10px 16px 10px 0;border-bottom:1px solid rgba(241,233,220,.1);color:#C9BDAC">Domingo</dt><dd style="margin:0;padding:10px 0;border-bottom:1px solid rgba(241,233,220,.1);text-align:right">12h–17h</dd>
+          <dt style="padding:10px 16px 10px 0;color:#C9BDAC">Segunda</dt><dd style="margin:0;padding:10px 0;text-align:right;color:#C8714F">Fechado</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="Formulário" style="background:#F1E9DC;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(88px,11vw,160px) clamp(20px,4vw,56px);display:flex;flex-wrap:wrap;gap:clamp(48px,7vw,120px)">
+    <div style="flex:1 1 360px;min-width:0;max-width:460px">
+      <h2 data-reveal="up" style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(40px,4.6vw,72px);line-height:1;letter-spacing:-.01em">Escreva para nós.</h2>
+      <p data-reveal="up" style="margin:28px 0 0;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#47372D;text-wrap:pretty">Eventos privativos, parcerias, imprensa ou qualquer outro assunto. Respondemos em até um dia útil. Para reservas, use a <a href="Reservas.dc.html" style="color:#A54F32;text-underline-offset:4px">página de reservas</a>.</p>
+    </div>
+    <div style="flex:1.6 1 520px;min-width:0">
+      <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+        <form onSubmit="{{ submit }}" aria-label="Enviar mensagem" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:36px 28px">
+          <label style="display:flex;flex-direction:column;gap:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#6B5848">Nome</span><input type="text" required="" autocomplete="name" style="height:52px;background:transparent;border:0;border-bottom:1px solid rgba(71,55,45,.35);color:#161411;font-size:17px;padding:0;border-radius:0;outline:none" style-focus="border-bottom-color:#A54F32"></label>
+          <label style="display:flex;flex-direction:column;gap:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#6B5848">E-mail</span><input type="email" required="" autocomplete="email" style="height:52px;background:transparent;border:0;border-bottom:1px solid rgba(71,55,45,.35);color:#161411;font-size:17px;padding:0;border-radius:0;outline:none" style-focus="border-bottom-color:#A54F32"></label>
+          <label style="display:flex;flex-direction:column;gap:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#6B5848">Telefone</span><input type="tel" autocomplete="tel" placeholder="(11) 90000-0000" style="height:52px;background:transparent;border:0;border-bottom:1px solid rgba(71,55,45,.35);color:#161411;font-size:17px;padding:0;border-radius:0;outline:none" style-focus="border-bottom-color:#A54F32"></label>
+          <label style="display:flex;flex-direction:column;gap:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#6B5848">Assunto</span>
+            <select required="" style="height:52px;background:transparent;border:0;border-bottom:1px solid rgba(71,55,45,.35);color:#161411;font-size:17px;padding:0;border-radius:0;outline:none" style-focus="border-bottom-color:#A54F32">
+              <option value="">Selecione</option><option>Eventos privativos</option><option>Reservas para grupos</option><option>Imprensa</option><option>Parcerias e fornecedores</option><option>Trabalhe conosco</option><option>Outro assunto</option>
+            </select></label>
+          <label style="display:flex;flex-direction:column;gap:10px;grid-column:1/-1"><span style="font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#6B5848">Mensagem</span><textarea required="" rows="5" style="background:transparent;border:0;border-bottom:1px solid rgba(71,55,45,.35);color:#161411;font-size:17px;padding:12px 0;border-radius:0;outline:none;resize:vertical;line-height:1.5" style-focus="border-bottom-color:#A54F32"></textarea></label>
+          <div style="grid-column:1/-1">
+            <button type="submit" style="display:inline-flex;align-items:center;gap:14px;white-space:nowrap;height:58px;padding:0 34px;background:#161411;color:#FAF7F1;border:0;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:background .3s ease, gap .3s ease" style-hover="background:#A54F32;gap:20px">Enviar mensagem <span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+      </sc-if>
+      <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="animation:sfStep .6s cubic-bezier(.2,.7,.2,1) both">
+          <span aria-hidden="true" style="display:block;width:12px;height:12px;background:#A54F32;transform:rotate(45deg)"></span>
+          <h3 style="margin:28px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(40px,4.4vw,64px);line-height:1">Mensagem enviada</h3>
+          <p style="margin:20px 0 0;max-width:460px;font-size:17px;line-height:1.7;color:#47372D">Obrigado pelo contato. Respondemos em até um dia útil.</p>
+          <button type="button" onClick="{{ reset }}" style="margin-top:28px;background:transparent;border:0;border-bottom:1px solid #A54F32;padding:10px 0;color:#161411;cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase">Enviar outra mensagem</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</section>
+
+<section aria-label="Mapa" style="position:relative;height:clamp(360px,50vw,560px);background:#E2D6C4">
+  <iframe title="Mapa: Rua Harmonia, 327 — Vila Madalena" src="https://www.openstreetmap.org/export/embed.html?bbox=-46.7005%2C-23.5625%2C-46.6785%2C-23.5485&amp;layer=mapnik&amp;marker=-23.5556%2C-46.6895" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;border:0;filter:grayscale(1) sepia(.35) contrast(.95) brightness(1.02)"></iframe>
+</section>
+</main>
+
+<dc-import name="Footer" hint-size="100%,520px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { sent: false };
+  renderVals() {
+    return {
+      notSent: !this.state.sent, sent: this.state.sent,
+      submit: e => { e.preventDefault(); this.setState({ sent: true }); },
+      reset: () => this.setState({ sent: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

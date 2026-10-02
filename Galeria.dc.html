@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Galeria — Sagrado Fogão</title>
+<meta name="description" content="Pratos, ambiente, cozinha e momentos do Sagrado Fogão, na Vila Madalena.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#161411;color:#F1E9DC;font-family:'Hanken Grotesk',sans-serif;-webkit-font-smoothing:antialiased;animation:sfIn .7s ease both}
+@keyframes sfIn{from{opacity:0}to{opacity:1}}
+@keyframes sfZoom{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
+a{color:#A54F32}a:hover{color:#642C2A}
+:focus-visible{outline:2px solid #C8714F;outline-offset:3px}
+::selection{background:#A54F32;color:#FAF7F1}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+
+<dc-import name="Header" active="galeria" hint-size="100%,1px"></dc-import>
+
+<main style="background:#161411">
+<section data-screen-label="Hero Galeria" style="max-width:1440px;margin:0 auto;padding:clamp(150px,18vw,220px) clamp(20px,4vw,56px) clamp(40px,5vw,64px)">
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:28px 64px">
+    <div>
+      <p style="margin:0 0 24px;font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#C8714F">Galeria</p>
+      <h1 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(58px,10vw,168px);line-height:.9;letter-spacing:-.02em">O Sagrado<br><em style="color:#E9C9B4">em imagens.</em></h1>
+    </div>
+    <p style="margin:0;max-width:360px;font-size:clamp(16px,1.3vw,18px);line-height:1.65;color:#C9BDAC">Pratos, salão, cozinha e os encontros que acontecem entre uma coisa e outra.</p>
+  </div>
+  <div role="tablist" aria-label="Filtrar fotos" style="display:flex;gap:clamp(18px,2.4vw,36px);margin-top:clamp(56px,7vw,96px);padding-top:8px;border-top:1px solid rgba(241,233,220,.12);overflow-x:auto;scrollbar-width:none">
+    <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+      <button type="button" role="tab" aria-selected="{{ f.sel }}" onClick="{{ f.pick }}" style="flex:0 0 auto;display:flex;align-items:center;gap:10px;height:52px;padding:0;background:transparent;border:0;border-bottom:1px solid {{ f.border }};cursor:pointer;color:{{ f.color }};font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;transition:color .3s ease" style-hover="color:#F1E9DC">{{ f.label }} <span style="font-size:11px;color:#9C8F7E">{{ f.count }}</span></button>
+    </sc-for>
+  </div>
+</section>
+
+<section aria-label="Fotos" style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px) clamp(96px,12vw,160px)">
+  <div style="display:grid;grid-template-columns:{{ gridCols }};grid-auto-rows:{{ rowH }};grid-auto-flow:dense;gap:clamp(8px,1.2vw,18px)">
+    <sc-for list="{{ items }}" as="it" hint-placeholder-count="8">
+      <figure style="margin:0;position:relative;overflow:hidden;background:#231D18;color:#6F5E4F;grid-column:{{ it.col }};grid-row:{{ it.row }}">
+        <div style="position:absolute;inset:0;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)" style-hover="transform:scale(1.035)">
+          <image-slot id="{{ it.id }}" src="{{ it.src }}" shape="rect" placeholder="{{ it.ph }}"></image-slot>
+        </div>
+        <button type="button" onClick="{{ it.open }}" aria-label="{{ it.aria }}" style="position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0;padding:0;cursor:zoom-in;pointer-events:{{ overlayPE }};display:flex;align-items:flex-end;justify-content:space-between;opacity:0;transition:opacity .4s ease" style-hover="opacity:1">
+          <span style="width:100%;display:flex;justify-content:space-between;align-items:flex-end;padding:40px 16px 14px;background:linear-gradient(0deg,rgba(22,20,17,.75),rgba(22,20,17,0));color:#FAF7F1;font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-align:left">{{ it.cap }}<span aria-hidden="true">+</span></span>
+        </button>
+      </figure>
+    </sc-for>
+  </div>
+</section>
+
+<section data-screen-label="CTA Galeria" style="background:#F1E9DC;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(88px,10vw,140px) clamp(20px,4vw,56px);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:32px">
+    <h2 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(40px,5vw,76px);line-height:1;letter-spacing:-.01em">Venha ver de perto.</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <a href="Reservas.dc.html" style="display:inline-flex;align-items:center;gap:14px;white-space:nowrap;height:58px;padding:0 32px;background:#A54F32;color:#FAF7F1;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:background .3s ease, gap .3s ease" style-hover="background:#8C4129;gap:20px;color:#FAF7F1">Reservar mesa <span aria-hidden="true">→</span></a>
+      <a href="https://instagram.com/sagradofogao" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;white-space:nowrap;height:58px;padding:0 32px;border:1px solid #161411;color:#161411;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:background .3s ease, color .3s ease" style-hover="background:#161411;color:#FAF7F1">@sagradofogao</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<sc-if value="{{ lightbox }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-modal="true" aria-label="{{ lb.aria }}" style="position:fixed;inset:0;z-index:100;background:rgba(14,12,10,.97);display:flex;flex-direction:column;color:#F1E9DC">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px clamp(16px,3vw,40px);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#C9BDAC">
+      <span>{{ lb.pos }}</span>
+      <button type="button" onClick="{{ close }}" aria-label="Fechar" style="width:48px;height:48px;background:transparent;border:1px solid rgba(241,233,220,.25);color:#F1E9DC;cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div style="flex:1;min-height:0;display:flex;align-items:center;gap:clamp(8px,2vw,24px);padding:0 clamp(8px,2vw,24px)">
+      <button type="button" onClick="{{ prev }}" aria-label="Foto anterior" style="flex:0 0 48px;height:48px;background:transparent;border:1px solid rgba(241,233,220,.25);color:#F1E9DC;cursor:pointer;font-size:18px">←</button>
+      <div style="flex:1;height:100%;max-height:calc(100vh - 170px);position:relative;background:#1d1814;color:#6F5E4F;animation:sfZoom .45s cubic-bezier(.2,.7,.2,1) both">
+        <sc-for list="{{ items }}" as="s" hint-placeholder-count="1">
+          <div style="position:absolute;inset:0;display:{{ s.lbDisplay }}"><image-slot id="{{ s.id }}" src="{{ s.src }}" shape="rect" fit="contain" placeholder="{{ s.ph }}"></image-slot></div>
+        </sc-for>
+      </div>
+      <button type="button" onClick="{{ next }}" aria-label="Próxima foto" style="flex:0 0 48px;height:48px;background:transparent;border:1px solid rgba(241,233,220,.25);color:#F1E9DC;cursor:pointer;font-size:18px">→</button>
+    </div>
+    <p style="margin:0;padding:18px clamp(16px,3vw,40px) 24px;text-align:center;font-family:'Instrument Serif',serif;font-size:22px">{{ lb.cap }}</p>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PHOTOS = [
+  ['gal-costela', 'pratos', 'Costela na Brasa', 'Costela na brasa, luz lateral', 2, 2],
+  ['gal-salao', 'ambiente', 'Salão ao anoitecer', 'Salão principal à noite', 2, 3],
+  ['gal-forno', 'cozinha', 'Forno a lenha', 'Forno a lenha aceso', 1, 2],
+  ['gal-brinde', 'momentos', 'Um brinde', 'Brinde em mesa longa', 1, 1],
+  ['gal-peixe', 'pratos', 'Peixe do Dia', 'Peixe do dia com arroz de coco', 1, 2],
+  ['gal-bar', 'ambiente', 'O bar', 'Balcão de pedra do bar', 1, 1],
+  ['gal-chef', 'cozinha', 'Chef Rafael Monteiro', 'Chef empratando', 2, 2],
+  ['gal-pato', 'pratos', 'Arroz de Pato', 'Arroz de pato em panela de ferro', 1, 1],
+  ['gal-casal', 'momentos', 'Jantar a dois', 'Casal à mesa, luz de vela', 1, 2],
+  ['gal-mesa', 'ambiente', 'Mesa posta', 'Mesa posta — linho e cerâmica', 1, 1],
+  ['gal-brasa', 'cozinha', 'Brasa', 'Brasa viva em close', 1, 1],
+  ['gal-pudim', 'pratos', 'Pudim de tapioca', 'Pudim de tapioca, calda de rapadura', 1, 1],
+  ['gal-amigos', 'momentos', 'Encontro de amigos', 'Grupo de amigos rindo à mesa', 2, 2],
+  ['gal-fachada', 'ambiente', 'Rua Harmonia, 327', 'Fachada à noite', 1, 2],
+  ['gal-nhoque', 'pratos', 'Nhoque de Mandioquinha', 'Nhoque de mandioquinha', 1, 1],
+  ['gal-ingredientes', 'cozinha', 'Ingredientes do dia', 'Ingredientes sobre a bancada', 2, 1],
+  ['gal-detalhe', 'ambiente', 'Detalhes', 'Detalhe arquitetônico — tijolo e ferro', 1, 1],
+  ['gal-drink', 'pratos', 'Drink Sagrado', 'Coquetel âmbar com fumaça', 1, 2],
+  ['gal-aniversario', 'momentos', 'Aniversário', 'Sobremesa com vela de aniversário', 1, 1],
+  ['gal-servico', 'cozinha', 'O passe', 'Pratos saindo da cozinha', 1, 1]
+].map(([id, cat, cap, ph, w, h]) => ({ id, cat, cap, ph, w, h, src: 'images/' + ({"costela":"costela","salao":"salao","forno":"polvo-grelha","brinde":"coquetel-citrico","peixe":"peixe-do-dia","bar":"coquetel-maracuja","chef":"chef-brasa","pato":"arroz-de-pato","casal":"cheesecake","mesa":"mesa-petiscos","brasa":"polvo-lareira","pudim":"pudim-tapioca","amigos":"banquete-fogo","fachada":"costela-por-do-sol","nhoque":"nhoque","ingredientes":"peixe-risoto","detalhe":"salmao-lareira","drink":"risoto-camarao","aniversario":"sobremesa-faisca","servico":"camaroes"})[id.slice(4)] + '.jpg' }));
+const CATS = [['todas', 'Todas'], ['pratos', 'Pratos'], ['ambiente', 'Ambiente'], ['cozinha', 'Cozinha'], ['momentos', 'Momentos']];
+class Component extends DCLogic {
+  state = { cat: 'todas', open: -1, w: 1200, dragging: false };
+  componentDidMount() {
+    this.onResize = () => this.setState({ w: window.innerWidth });
+    this.onKey = e => {
+      if (this.state.open < 0) return;
+      if (e.key === 'Escape') this.close();
+      if (e.key === 'ArrowRight') this.step(1);
+      if (e.key === 'ArrowLeft') this.step(-1);
+    };
+    this.onDrag = () => { if (!this.state.dragging) this.setState({ dragging: true }); };
+    this.onDragEnd = e => { if (e.type !== 'dragleave' || !e.relatedTarget) this.setState({ dragging: false }); };
+    window.addEventListener('resize', this.onResize);
+    window.addEventListener('keydown', this.onKey);
+    window.addEventListener('dragenter', this.onDrag);
+    ['drop', 'dragend', 'dragleave'].forEach(t => window.addEventListener(t, this.onDragEnd));
+    this.onResize();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('keydown', this.onKey);
+    window.removeEventListener('dragenter', this.onDrag);
+    ['drop', 'dragend', 'dragleave'].forEach(t => window.removeEventListener(t, this.onDragEnd));
+    document.body.style.overflow = '';
+  }
+  list() { return this.state.cat === 'todas' ? PHOTOS : PHOTOS.filter(p => p.cat === this.state.cat); }
+  close() { document.body.style.overflow = ''; this.setState({ open: -1 }); }
+  step(d) { const n = this.list().length; this.setState(s => ({ open: (s.open + d + n) % n })); }
+  renderVals() {
+    const { cat, open, w, dragging } = this.state;
+    const cols = w < 640 ? 2 : w < 1000 ? 3 : 4;
+    const list = this.list();
+    const cur = list[open];
+    return {
+      gridCols: `repeat(${cols}, minmax(0, 1fr))`,
+      rowH: w < 640 ? '150px' : 'clamp(180px,16vw,240px)',
+      overlayPE: dragging ? 'none' : 'auto',
+      filters: CATS.map(([k, label]) => ({
+        label, sel: k === cat ? 'true' : 'false',
+        count: k === 'todas' ? PHOTOS.length : PHOTOS.filter(p => p.cat === k).length,
+        color: k === cat ? '#F1E9DC' : '#9C8F7E', border: k === cat ? '#A54F32' : 'transparent',
+        pick: () => this.setState({ cat: k })
+      })),
+      items: list.map((p, i) => ({
+        ...p, aria: 'Ampliar foto: ' + p.cap, lbDisplay: i === open ? 'block' : 'none',
+        col: 'span ' + Math.min(p.w, cols), row: 'span ' + p.h,
+        open: () => { document.body.style.overflow = 'hidden'; this.setState({ open: i }); }
+      })),
+      lightbox: !!cur,
+      lb: cur ? { id: cur.id, ph: cur.ph, cap: cur.cap, aria: cur.cap, pos: `${String(open + 1).padStart(2, '0')} / ${String(list.length).padStart(2, '0')}` } : {},
+      close: () => this.close(), prev: () => this.step(-1), next: () => this.step(1)
+    };
+  }
+}
+</script>
+</body>
+</html>

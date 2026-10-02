@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Experiência — Sagrado Fogão</title>
+<meta name="description" content="Ambiente, cozinha aberta, bar, gastronomia, serviço e momentos especiais no Sagrado Fogão, Vila Madalena.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{margin:0;background:#161411;color:#F1E9DC;font-family:'Hanken Grotesk',sans-serif;-webkit-font-smoothing:antialiased;animation:sfIn .7s ease both}
+@keyframes sfIn{from{opacity:0}to{opacity:1}}
+a{color:#A54F32}a:hover{color:#642C2A}
+:focus-visible{outline:2px solid #C8714F;outline-offset:3px}
+::selection{background:#A54F32;color:#FAF7F1}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+
+<dc-import name="Header" active="experiencia" hint-size="100%,1px"></dc-import>
+
+<main>
+<section data-screen-label="Hero Experiência" style="position:relative;height:100vh;min-height:620px;overflow:hidden;background:#1d1814;color:#6F5E4F">
+  <div data-parallax="0.18" style="position:absolute;inset:-8% 0"><image-slot id="exp-hero" src="images/salao.jpg" shape="rect" placeholder="Salão cheio à noite — mesas iluminadas, cozinha aberta ao fundo"></image-slot></div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(22,20,17,.55) 0%,rgba(22,20,17,.1) 35%,rgba(22,20,17,.88) 100%)"></div>
+  <div style="position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:flex-end;max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px) clamp(40px,5vw,64px);color:#F1E9DC">
+    <p style="margin:0 0 28px;font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#E6D9C6">Experiência</p>
+    <h1 style="margin:0;max-width:12ch;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(54px,9vw,148px);line-height:.92;letter-spacing:-.02em">Mais do que sentar à mesa.</h1>
+    <nav aria-label="Nesta página" style="pointer-events:auto;display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:clamp(40px,6vh,72px);padding-top:22px;border-top:1px solid rgba(241,233,220,.22)">
+      <a href="#ambiente" style="color:#E6D9C6;text-decoration:none;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;padding:8px 0" style-hover="color:#FAF7F1">01 Ambiente</a>
+      <a href="#cozinha-aberta" style="color:#E6D9C6;text-decoration:none;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;padding:8px 0" style-hover="color:#FAF7F1">02 Cozinha aberta</a>
+      <a href="#bar" style="color:#E6D9C6;text-decoration:none;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;padding:8px 0" style-hover="color:#FAF7F1">03 Bar</a>
+      <a href="#gastronomia" style="color:#E6D9C6;text-decoration:none;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;padding:8px 0" style-hover="color:#FAF7F1">04 Gastronomia</a>
+      <a href="#servico" style="color:#E6D9C6;text-decoration:none;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;padding:8px 0" style-hover="color:#FAF7F1">05 Serviço</a>
+      <a href="#momentos" style="color:#E6D9C6;text-decoration:none;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;padding:8px 0" style-hover="color:#FAF7F1">06 Momentos especiais</a>
+    </nav>
+  </div>
+</section>
+
+<section id="ambiente" data-screen-label="01 Ambiente" style="background:#F1E9DC;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px)">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:32px 64px;margin-bottom:clamp(48px,6vw,88px)">
+      <div>
+        <span data-reveal="up" style="font-size:12px;letter-spacing:.2em;color:#A54F32">01</span>
+        <h2 data-reveal="up" style="margin:16px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(46px,6vw,96px);line-height:.96;letter-spacing:-.015em">Ambiente</h2>
+      </div>
+      <p data-reveal="up" style="flex:0 1 440px;margin:0;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#47372D;text-wrap:pretty">Tijolo aparente, madeira clara, linho cru e cerâmica feita à mão. A luz é baixa e quente, pensada para que a mesa seja o ponto mais iluminado da sala. São 72 lugares divididos entre salão, balcão e varanda.</p>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:clamp(12px,1.6vw,24px)">
+      <div data-reveal="img" style="flex:2 1 560px;min-width:0;position:relative;aspect-ratio:16/10;overflow:hidden;background:#E2D6C4;color:#8A7563"><div style="position:absolute;inset:0;transition:transform 1.4s cubic-bezier(.2,.7,.2,1)" style-hover="transform:scale(1.03)"><image-slot id="exp-amb-1" src="images/salmao-salao.jpg" shape="rect" placeholder="Salão em plano aberto — pé-direito alto, luminárias pendentes"></image-slot></div></div>
+      <div data-reveal="img" data-delay="100" style="flex:1 1 280px;min-width:0;position:relative;aspect-ratio:3/4;overflow:hidden;background:#E2D6C4;color:#8A7563"><div style="position:absolute;inset:0;transition:transform 1.4s cubic-bezier(.2,.7,.2,1)" style-hover="transform:scale(1.03)"><image-slot id="exp-amb-2" src="images/cheesecake.jpg" shape="rect" placeholder="Varanda com plantas e mesa para dois"></image-slot></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="cozinha-aberta" data-screen-label="02 Cozinha aberta" style="position:relative;min-height:100vh;overflow:hidden;background:#1d1814;color:#6F5E4F;display:flex;align-items:flex-end">
+  <div data-parallax="0.2" style="position:absolute;inset:-16% 0"><image-slot id="exp-cozinha" src="images/chef-brasa.jpg" shape="rect" placeholder="Cozinha aberta em pleno serviço — fogo, cozinheiros em movimento"></image-slot></div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,rgba(22,20,17,.9) 0%,rgba(22,20,17,.2) 60%,rgba(22,20,17,.35) 100%)"></div>
+  <div style="position:relative;pointer-events:none;width:100%;max-width:1440px;margin:0 auto;padding:180px clamp(20px,4vw,56px) clamp(56px,7vw,104px);color:#F1E9DC;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:32px 64px">
+    <div>
+      <span data-reveal="up" style="font-size:12px;letter-spacing:.2em;color:#E9C9B4">02</span>
+      <h2 data-reveal="up" style="margin:16px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(46px,6vw,96px);line-height:.96;letter-spacing:-.015em">Cozinha aberta</h2>
+    </div>
+    <p data-reveal="up" style="flex:0 1 440px;margin:0;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#E6D9C6;text-wrap:pretty">Não há parede entre quem cozinha e quem come. Do balcão da Mesa do Chef, até oito pessoas acompanham de perto o forno a lenha, a grelha e cada prato sendo finalizado.</p>
+  </div>
+</section>
+
+<section id="bar" data-screen-label="03 Bar" style="background:#161411;color:#F1E9DC">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px);display:flex;flex-wrap:wrap;gap:clamp(48px,7vw,120px);align-items:center">
+    <div style="flex:1 1 380px;min-width:0;max-width:500px">
+      <span data-reveal="up" style="font-size:12px;letter-spacing:.2em;color:#C8714F">03</span>
+      <h2 data-reveal="up" style="margin:16px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(46px,6vw,96px);line-height:.96;letter-spacing:-.015em">Bar</h2>
+      <p data-reveal="up" style="margin:28px 0 0;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#C9BDAC;text-wrap:pretty">Um balcão de pedra na entrada da casa, com coquetéis autorais feitos com cachaças de alambique, frutas brasileiras e infusões preparadas na cozinha. Um bom lugar para esperar a mesa, ou para ficar.</p>
+      <a data-reveal="up" href="Cardapio.dc.html#drinks" style="display:inline-flex;align-items:center;gap:12px;margin-top:36px;padding:12px 0;border-bottom:1px solid #A54F32;color:#F1E9DC;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:gap .3s ease" style-hover="gap:20px;color:#F1E9DC">Ver drinks <span aria-hidden="true">→</span></a>
+    </div>
+    <div style="flex:1.4 1 520px;min-width:0;display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(12px,1.6vw,24px);align-items:end">
+      <div data-reveal="img" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#231D18;color:#6F5E4F"><image-slot id="exp-bar-1" src="images/coquetel-citrico.jpg" shape="rect" placeholder="Bartender preparando coquetel"></image-slot></div>
+      <div data-reveal="img" data-delay="100" style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#231D18;color:#6F5E4F;margin-bottom:clamp(0px,6vw,96px)"><image-slot id="exp-bar-2" src="images/coquetel-maracuja.jpg" shape="rect" placeholder="Copo com gelo e casca de limão-cravo"></image-slot></div>
+    </div>
+  </div>
+</section>
+
+<section id="gastronomia" data-screen-label="04 Gastronomia" style="background:#FAF7F1;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px)">
+    <div style="display:flex;flex-wrap:wrap;gap:clamp(48px,7vw,120px);align-items:flex-start">
+      <div style="flex:1 1 420px;min-width:0">
+        <span data-reveal="up" style="font-size:12px;letter-spacing:.2em;color:#A54F32">04</span>
+        <h2 data-reveal="up" style="margin:16px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(46px,6vw,96px);line-height:.96;letter-spacing:-.015em">Gastronomia</h2>
+        <p data-reveal="up" style="margin:28px 0 0;max-width:460px;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#47372D;text-wrap:pretty">Pratos para dividir e pratos individuais, sempre a partir de receitas brasileiras. A sugestão da casa é pedir algumas entradas para o centro da mesa e seguir sem pressa.</p>
+        <div data-reveal="img" style="margin-top:56px;position:relative;aspect-ratio:1/1;max-width:420px;overflow:hidden;background:#E9DFD0;color:#8A7563"><image-slot id="exp-gastro-2" src="images/mesa-petiscos.jpg" shape="rect" placeholder="Entrada para compartilhar — vista de cima"></image-slot></div>
+      </div>
+      <div data-reveal="img" style="flex:1.2 1 480px;min-width:0;position:relative;aspect-ratio:4/5;overflow:hidden;background:#E9DFD0;color:#8A7563"><div style="position:absolute;inset:0;transition:transform 1.4s cubic-bezier(.2,.7,.2,1)" style-hover="transform:scale(1.03)"><image-slot id="exp-gastro-1" src="images/arroz-dourado.jpg" shape="rect" placeholder="Prato principal servido, vapor subindo"></image-slot></div></div>
+    </div>
+    <div data-reveal="up" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:24px;margin-top:clamp(56px,7vw,96px);padding-top:32px;border-top:1px solid rgba(71,55,45,.2)">
+      <p style="margin:0;font-family:'Instrument Serif',serif;font-size:clamp(24px,2.2vw,32px)">Costela na Brasa, Arroz de Pato, Peixe do Dia.</p>
+      <a href="Cardapio.dc.html" style="display:inline-flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #A54F32;color:#161411;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:gap .3s ease" style-hover="gap:20px;color:#161411">Ver cardápio <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="servico" data-screen-label="05 Serviço" style="background:#F1E9DC;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px);display:flex;flex-wrap:wrap;flex-direction:row-reverse;gap:clamp(48px,7vw,120px);align-items:center">
+    <div data-reveal="img" style="flex:1.3 1 520px;min-width:0;position:relative;aspect-ratio:5/4;overflow:hidden;background:#E2D6C4;color:#8A7563"><image-slot id="exp-servico" src="images/camaroes.jpg" shape="rect" placeholder="Garçom apresentando o prato à mesa"></image-slot></div>
+    <div style="flex:1 1 360px;min-width:0;max-width:480px">
+      <span data-reveal="up" style="font-size:12px;letter-spacing:.2em;color:#A54F32">05</span>
+      <h2 data-reveal="up" style="margin:16px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(46px,6vw,96px);line-height:.96;letter-spacing:-.015em">Serviço</h2>
+      <p data-reveal="up" style="margin:28px 0 0;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#47372D;text-wrap:pretty">Atencioso sem ser cerimonioso. Nossa equipe prova o cardápio a cada mudança de estação para recomendar com propriedade, harmonizar vinhos e adaptar pratos a restrições alimentares.</p>
+    </div>
+  </div>
+</section>
+
+<section id="momentos" data-screen-label="06 Momentos especiais" style="background:#642C2A;color:#F1E9DC">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px)">
+    <span data-reveal="up" style="font-size:12px;letter-spacing:.2em;color:#E9C9B4">06</span>
+    <h2 data-reveal="up" style="margin:16px 0 clamp(56px,7vw,96px);max-width:14ch;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(46px,6vw,96px);line-height:.96;letter-spacing:-.015em">Momentos especiais</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:clamp(48px,6vw,96px)">
+      <div data-reveal="img" style="flex:1 1 420px;min-width:0;position:relative;aspect-ratio:4/5;overflow:hidden;background:#4E2321;color:#B58A7F"><image-slot id="exp-momentos" src="images/sobremesa-faisca.jpg" shape="rect" placeholder="Brinde em mesa longa — celebração, luz de vela"></image-slot></div>
+      <ul style="flex:1.2 1 460px;min-width:0;list-style:none;margin:0;padding:0">
+        <li data-reveal="up" style="padding:32px 0;border-top:1px solid rgba(241,233,220,.22)">
+          <h3 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,2.6vw,38px)">Aniversários e celebrações</h3>
+          <p style="margin:12px 0 0;max-width:520px;font-size:16px;line-height:1.65;color:#EAD9CF">Avise na reserva. Preparamos a mesa e, se quiser, uma sobremesa especial para o momento do parabéns.</p>
+        </li>
+        <li data-reveal="up" style="padding:32px 0;border-top:1px solid rgba(241,233,220,.22)">
+          <h3 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,2.6vw,38px)">Mesa do Chef</h3>
+          <p style="margin:12px 0 0;max-width:520px;font-size:16px;line-height:1.65;color:#EAD9CF">Balcão em frente à cozinha para até oito pessoas, com menu em etapas definido pelo chef no dia.</p>
+        </li>
+        <li data-reveal="up" style="padding:32px 0;border-top:1px solid rgba(241,233,220,.22)">
+          <h3 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,2.6vw,38px)">Almoços de negócios</h3>
+          <p style="margin:12px 0 0;max-width:520px;font-size:16px;line-height:1.65;color:#EAD9CF">Mesas mais reservadas no fundo do salão e serviço no ritmo da sua agenda.</p>
+        </li>
+        <li data-reveal="up" style="padding:32px 0;border-top:1px solid rgba(241,233,220,.22);border-bottom:1px solid rgba(241,233,220,.22)">
+          <h3 style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,2.6vw,38px)">Eventos privativos</h3>
+          <p style="margin:12px 0 0;max-width:520px;font-size:16px;line-height:1.65;color:#EAD9CF">A varanda pode ser reservada para grupos de até 30 pessoas. <a href="Contato.dc.html" style="color:#FAF7F1;text-underline-offset:4px" style-hover="color:#E9C9B4">Fale com a gente.</a></p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="CTA" style="background:#161411;color:#F1E9DC">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(112px,14vw,200px) clamp(20px,4vw,56px);display:flex;flex-direction:column;align-items:center;text-align:center">
+    <h2 data-reveal="up" style="margin:0;max-width:14ch;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(50px,7.4vw,124px);line-height:.94;letter-spacing:-.02em">Reserve sua experiência</h2>
+    <p data-reveal="up" style="margin:32px 0 0;max-width:420px;font-size:clamp(16px,1.3vw,18px);line-height:1.65;color:#C9BDAC">Terça a domingo, almoço e jantar. Rua Harmonia, 327 — Vila Madalena.</p>
+    <a data-reveal="up" href="Reservas.dc.html" style="display:inline-flex;align-items:center;gap:14px;white-space:nowrap;height:60px;padding:0 36px;margin-top:44px;background:#A54F32;color:#FAF7F1;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:background .3s ease, gap .3s ease" style-hover="background:#8C4129;gap:20px;color:#FAF7F1">Reserve sua experiência <span aria-hidden="true">→</span></a>
+  </div>
+</section>
+</main>
+
+<dc-import name="Footer" hint-size="100%,520px"></dc-import>
+</x-dc>
+</body>
+</html>

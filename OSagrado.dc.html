@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>O Sagrado — História e filosofia · Sagrado Fogão</title>
+<meta name="description" content="A história do Sagrado Fogão: cozinha brasileira contemporânea guiada pelo fogo, pelos ingredientes e pela hospitalidade.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#161411;color:#F1E9DC;font-family:'Hanken Grotesk',sans-serif;-webkit-font-smoothing:antialiased;animation:sfIn .7s ease both}
+@keyframes sfIn{from{opacity:0}to{opacity:1}}
+a{color:#A54F32}a:hover{color:#642C2A}
+:focus-visible{outline:2px solid #C8714F;outline-offset:3px}
+::selection{background:#A54F32;color:#FAF7F1}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+
+<dc-import name="Header" active="sagrado" hint-size="100%,1px"></dc-import>
+
+<main>
+<section data-screen-label="Hero O Sagrado" style="position:relative;height:100vh;min-height:620px;overflow:hidden;background:#1d1814;color:#6F5E4F">
+  <div data-parallax="0.18" style="position:absolute;inset:-8% 0"><image-slot id="sag-hero" src="images/banquete-fogo.jpg" shape="rect" placeholder="Lenha acesa no forno da cozinha — chamas baixas, rosto do cozinheiro iluminado"></image-slot></div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(22,20,17,.55) 0%,rgba(22,20,17,.1) 35%,rgba(22,20,17,.85) 100%)"></div>
+  <div style="position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:flex-end;max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px) clamp(56px,8vw,112px);color:#F1E9DC">
+    <p style="margin:0 0 28px;font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#E6D9C6">O Sagrado</p>
+    <h1 style="margin:0;max-width:12ch;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(54px,9vw,148px);line-height:.92;letter-spacing:-.02em">Tudo começa ao redor do <em style="color:#E9C9B4">fogo.</em></h1>
+  </div>
+</section>
+
+<section data-screen-label="Abertura" style="background:#F1E9DC;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px)">
+    <p data-reveal="up" style="margin:0;max-width:22ch;font-family:'Instrument Serif',serif;font-size:clamp(34px,4.4vw,68px);line-height:1.1;letter-spacing:-.01em;text-wrap:pretty">Antes de existir cozinha, existia o fogo. E ao redor dele, as pessoas se reuniam para comer, contar histórias e ficar.</p>
+    <p data-reveal="up" style="margin:clamp(40px,5vw,64px) 0 0 auto;max-width:520px;font-size:clamp(16px,1.25vw,18px);line-height:1.7;color:#47372D;text-wrap:pretty">O Sagrado Fogão nasceu dessa imagem. Um restaurante onde a brasa ocupa o centro da casa, a cozinha fica à vista e a mesa é o lugar mais importante do salão.</p>
+  </div>
+</section>
+
+<section data-screen-label="I Origem" style="background:#F1E9DC;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px) clamp(96px,12vw,180px);display:flex;flex-wrap:wrap;gap:clamp(48px,7vw,120px);align-items:flex-end">
+    <div data-reveal="img" style="flex:1.3 1 520px;min-width:0;position:relative;aspect-ratio:5/4;overflow:hidden;background:#E2D6C4;color:#8A7563"><image-slot id="sag-origem" src="images/salao.jpg" shape="rect" placeholder="Fachada do restaurante ao entardecer — portas abertas, luz quente vinda de dentro"></image-slot></div>
+    <div style="flex:1 1 360px;min-width:0;max-width:480px">
+      <span data-reveal="up" style="display:block;font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:#A54F32">I.</span>
+      <h2 data-reveal="up" style="margin:12px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(40px,4.4vw,68px);line-height:1">Origem</h2>
+      <div data-reveal="up" style="margin-top:28px;display:flex;flex-direction:column;gap:18px;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#47372D;text-wrap:pretty">
+        <p style="margin:0">A casa na Rua Harmonia foi escolhida pelo pé-direito alto, pelos tijolos aparentes e pelo quintal nos fundos, onde hoje fica o forno a lenha.</p>
+        <p style="margin:0">A ideia era simples: abrir um restaurante na Vila Madalena que tivesse o conforto de uma casa e o cuidado de uma cozinha autoral.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="II Cozinha brasileira" style="background:#FAF7F1;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px)">
+    <div style="display:flex;flex-wrap:wrap;gap:32px clamp(48px,7vw,120px);margin-bottom:clamp(56px,7vw,104px)">
+      <div style="flex:1 1 520px">
+        <span data-reveal="up" style="display:block;font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:#A54F32">II.</span>
+        <h2 data-reveal="up" style="margin:12px 0 0;max-width:13ch;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(42px,5.6vw,88px);line-height:1;letter-spacing:-.01em">Uma cozinha que reconhece de onde vem.</h2>
+      </div>
+      <div data-reveal="up" style="flex:0 1 440px;display:flex;flex-direction:column;gap:18px;padding-top:clamp(0px,4vw,60px);font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#47372D;text-wrap:pretty">
+        <p style="margin:0">Arroz caldoso, mandioca, feijão, farofa, peixe na folha, doce de tacho. O ponto de partida são receitas que muitos brasileiros conhecem desde a infância.</p>
+        <p style="margin:0">A técnica contemporânea entra para dar precisão: cocções longas, fermentações, defumação, pontos exatos. O sabor de origem continua reconhecível em cada prato.</p>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:clamp(16px,2vw,32px);align-items:flex-start">
+      <div data-reveal="img" style="flex:1 1 360px;min-width:0;position:relative;aspect-ratio:3/4;overflow:hidden;background:#E9DFD0;color:#8A7563"><image-slot id="sag-cozinha-1" src="images/arroz-de-pato.jpg" shape="rect" placeholder="Panela de ferro com arroz caldoso, colher de madeira"></image-slot></div>
+      <div data-reveal="img" data-delay="100" style="flex:1.4 1 480px;min-width:0;position:relative;aspect-ratio:4/3;overflow:hidden;background:#E9DFD0;color:#8A7563;margin-top:clamp(0px,8vw,140px)"><image-slot id="sag-cozinha-2" src="images/peixe-do-dia.jpg" shape="rect" placeholder="Empratamento — mãos finalizando com ervas"></image-slot></div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="III Ingredientes" style="background:#161411;color:#F1E9DC">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px);display:flex;flex-wrap:wrap;gap:clamp(56px,7vw,120px)">
+    <div style="flex:1 1 420px;min-width:0">
+      <span data-reveal="up" style="display:block;font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:#C8714F">III.</span>
+      <h2 data-reveal="up" style="margin:12px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(42px,5vw,80px);line-height:1;letter-spacing:-.01em">Ingredientes</h2>
+      <p data-reveal="up" style="margin:28px 0 0;max-width:460px;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#C9BDAC;text-wrap:pretty">O cardápio acompanha a estação e o que os produtores têm de melhor. Trabalhamos com fornecedores fixos, pequenos e próximos, e com regiões que definem o sabor brasileiro.</p>
+      <ul data-reveal="up" style="list-style:none;margin:48px 0 0;padding:0;max-width:520px">
+        <li style="display:flex;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(241,233,220,.14);font-size:15px"><span>Queijos curados</span><span style="color:#9C8F7E;text-align:right">Serra da Canastra, MG</span></li>
+        <li style="display:flex;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(241,233,220,.14);font-size:15px"><span>Peixes e frutos do mar</span><span style="color:#9C8F7E;text-align:right">Litoral Norte, SP</span></li>
+        <li style="display:flex;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(241,233,220,.14);font-size:15px"><span>Farinhas e tucupi</span><span style="color:#9C8F7E;text-align:right">Bragança, PA</span></li>
+        <li style="display:flex;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(241,233,220,.14);font-size:15px"><span>Hortaliças e ervas</span><span style="color:#9C8F7E;text-align:right">Cinturão verde de São Paulo</span></li>
+        <li style="display:flex;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(241,233,220,.14);border-bottom:1px solid rgba(241,233,220,.14);font-size:15px"><span>Cachaças de alambique</span><span style="color:#9C8F7E;text-align:right">Sul de Minas, MG</span></li>
+      </ul>
+    </div>
+    <div style="flex:1.1 1 460px;min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.6vw,24px);align-content:start">
+      <div data-reveal="img" style="grid-column:1/-1;position:relative;aspect-ratio:16/10;overflow:hidden;background:#231D18;color:#6F5E4F"><image-slot id="sag-ingr-1" src="images/mesa-petiscos.jpg" shape="rect" placeholder="Ingredientes sobre a bancada — mandioca, pimentas, ervas"></image-slot></div>
+      <div data-reveal="img" style="position:relative;aspect-ratio:1/1;overflow:hidden;background:#231D18;color:#6F5E4F"><image-slot id="sag-ingr-2" src="images/peixe-risoto.jpg" shape="rect" placeholder="Queijo curado cortado"></image-slot></div>
+      <div data-reveal="img" data-delay="80" style="position:relative;aspect-ratio:1/1;overflow:hidden;background:#231D18;color:#6F5E4F"><image-slot id="sag-ingr-3" src="images/salmao.jpg" shape="rect" placeholder="Peixe fresco no gelo"></image-slot></div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="IV Fogo" style="position:relative;height:100vh;min-height:600px;overflow:hidden;background:#1d1814;color:#6F5E4F">
+  <div data-parallax="0.22" style="position:absolute;inset:-18% 0"><image-slot id="sag-fogo" src="images/costela.jpg" shape="rect" placeholder="Brasa em close — textura das cinzas e brilho laranja"></image-slot></div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:rgba(22,20,17,.5)"></div>
+  <div style="position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 clamp(20px,4vw,56px);color:#F1E9DC">
+    <span data-reveal="up" style="font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:#E9C9B4">IV.</span>
+    <h2 data-reveal="up" style="margin:16px 0 0;max-width:16ch;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(42px,6vw,96px);line-height:1;letter-spacing:-.015em">A brasa pede tempo. E devolve sabor.</h2>
+    <p data-reveal="up" style="margin:32px 0 0;max-width:520px;font-size:clamp(16px,1.3vw,18px);line-height:1.7;color:#E6D9C6">A lenha é acesa antes do almoço e só se apaga depois do último serviço. Carnes, peixes, legumes, pães e até sobremesas passam pelo calor do fogo.</p>
+  </div>
+</section>
+
+<section data-screen-label="V Hospitalidade" style="background:#F1E9DC;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px);display:flex;flex-wrap:wrap;flex-direction:row-reverse;gap:clamp(48px,7vw,120px);align-items:center">
+    <div data-reveal="img" style="flex:1.2 1 480px;min-width:0;position:relative;aspect-ratio:4/5;overflow:hidden;background:#E2D6C4;color:#8A7563"><image-slot id="sag-hosp" src="images/file-molho.jpg" shape="rect" placeholder="Garçom servindo vinho a uma mesa de amigos — gesto, sorrisos fora de foco"></image-slot></div>
+    <div style="flex:1 1 380px;min-width:0;max-width:520px">
+      <span data-reveal="up" style="display:block;font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:#A54F32">V.</span>
+      <h2 data-reveal="up" style="margin:12px 0 0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(40px,4.6vw,72px);line-height:1">Hospitalidade</h2>
+      <div data-reveal="up" style="margin-top:28px;display:flex;flex-direction:column;gap:18px;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#47372D;text-wrap:pretty">
+        <p style="margin:0">Receber bem é a parte do trabalho que não aparece no prato. Uma equipe que conhece cada receita, sugere sem pressa e percebe quando a mesa quer conversa ou silêncio.</p>
+        <p style="margin:0">Aqui, ninguém precisa se arrumar para jantar bem. Basta chegar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="VI Chef" style="background:#FAF7F1;color:#161411">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,180px) clamp(20px,4vw,56px)">
+    <span data-reveal="up" style="display:block;font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:#A54F32">VI.</span>
+    <div style="display:flex;flex-wrap:wrap;gap:clamp(48px,7vw,120px);align-items:flex-start;margin-top:12px">
+      <div style="flex:1 1 480px;min-width:0">
+        <p data-reveal="up" style="margin:0 0 20px;font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#A54F32">À frente do fogão</p>
+        <h2 data-reveal="up" style="margin:0;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(46px,6vw,96px);line-height:.96;letter-spacing:-.015em">Chef Rafael Monteiro</h2>
+        <div data-reveal="up" style="margin-top:40px;max-width:520px;display:flex;flex-direction:column;gap:18px;font-size:clamp(16px,1.2vw,17px);line-height:1.7;color:#47372D;text-wrap:pretty">
+          <p style="margin:0">Com uma cozinha construída entre memória, técnica e ingredientes brasileiros, Rafael Monteiro encontrou no fogo uma forma de reinterpretar sabores que atravessam gerações.</p>
+          <p style="margin:0">Sua cozinha parte do princípio de que sofisticação não precisa significar distância — ela pode estar em um ingrediente simples tratado com respeito.</p>
+        </div>
+        <blockquote data-reveal="up" style="margin:56px 0 0;padding-top:32px;border-top:1px solid rgba(71,55,45,.22);max-width:560px;font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(26px,2.4vw,36px);line-height:1.25;color:#642C2A">“Quero que a pessoa prove e reconheça alguma coisa. Depois, que se surpreenda.”</blockquote>
+      </div>
+      <div style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:clamp(16px,2vw,24px)">
+        <div data-reveal="img" style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#E9DFD0;color:#8A7563"><image-slot id="sag-chef" src="images/chef-brasa.jpg" shape="rect" placeholder="Retrato do chef junto ao forno a lenha"></image-slot></div>
+        <div data-reveal="img" style="position:relative;aspect-ratio:16/9;width:70%;overflow:hidden;background:#E9DFD0;color:#8A7563"><image-slot id="sag-chef-2" src="images/arroz-dourado.jpg" shape="rect" placeholder="Mãos do chef temperando"></image-slot></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="VII Experiência" style="background:#642C2A;color:#F1E9DC">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(96px,12vw,170px) clamp(20px,4vw,56px);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:48px">
+    <div style="flex:1 1 560px">
+      <span data-reveal="up" style="display:block;font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:#E9C9B4">VII.</span>
+      <h2 data-reveal="up" style="margin:12px 0 0;max-width:14ch;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(42px,5.6vw,88px);line-height:1;letter-spacing:-.01em">O resto da história acontece à mesa.</h2>
+    </div>
+    <div data-reveal="up" style="display:flex;flex-wrap:wrap;gap:12px">
+      <a href="Reservas.dc.html" style="display:inline-flex;align-items:center;gap:14px;white-space:nowrap;height:58px;padding:0 32px;background:#F1E9DC;color:#161411;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:background .3s ease, gap .3s ease" style-hover="background:#FAF7F1;gap:20px;color:#161411">Reservar uma mesa <span aria-hidden="true">→</span></a>
+      <a href="Experiencia.dc.html" style="display:inline-flex;align-items:center;white-space:nowrap;height:58px;padding:0 32px;border:1px solid rgba(241,233,220,.55);color:#F1E9DC;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:background .3s ease" style-hover="background:rgba(241,233,220,.1);color:#F1E9DC">A experiência</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<dc-import name="Footer" hint-size="100%,520px"></dc-import>
+</x-dc>
+</body>
+</html>
