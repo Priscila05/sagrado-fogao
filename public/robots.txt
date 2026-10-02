@@ -1,0 +1,7 @@
+# Sagrado Fogão — robots.txt
+# Troque o domínio abaixo caso o site seja publicado em outro endereço.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://www.sagradofogao.com.br/sitemap.xml

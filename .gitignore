@@ -1,0 +1,20 @@
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Dependências e artefatos (o site não usa build, mas evita sujeira acidental)
+node_modules/
+.cache/
+.parcel-cache/
+dist/
+.vercel/
+.netlify/
+
+# Artefatos do ambiente de preview do Claude Design
+.image-slots.state.json

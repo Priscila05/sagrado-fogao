@@ -1,0 +1,393 @@
+/* ==========================================================================
+   Sagrado Fogão — folha de estilo única do site
+   Monter Web Studio
+
+   Estrutura:
+   1. Fontes (auto-hospedadas)
+   2. Base / reset
+   3. Movimento reduzido
+   4. Header + menu móvel
+   5. Estados de hover e foco (substituem style-hover/style-focus do preview)
+   6. Imagens e fallback
+   7. Animações de entrada (reveal) e parallax
+   8. Utilitários de página (cardápio, galeria, reservas, formulários)
+   ========================================================================== */
+
+/* 1. FONTES ================================================================= */
+
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/instrument-serif-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/instrument-serif-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/instrument-serif-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/instrument-serif-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Hanken Grotesk é uma fonte variável: o mesmo arquivo atende 400–600 e o
+   descritor font-weight fixa o eixo wght. */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('../fonts/hanken-grotesk-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('../fonts/hanken-grotesk-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* 2. BASE =================================================================== */
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  /* compensa o header fixo ao pular para âncoras */
+  scroll-padding-top: 110px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: #161411;
+  color: #F1E9DC;
+  font-family: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* evita barra de rolagem horizontal sem quebrar position:sticky */
+  overflow-x: clip;
+  animation: sfIn .7s ease both;
+}
+
+@keyframes sfIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes sfCue { 0% { transform: translateY(-100%) } 60%, 100% { transform: translateY(220%) } }
+@keyframes sfStep { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+@keyframes sfZoom { from { opacity: 0; transform: scale(.98) } to { opacity: 1; transform: none } }
+
+a { color: #A54F32; }
+a:hover { color: #642C2A; }
+
+:focus-visible { outline: 2px solid #C8714F; outline-offset: 3px; }
+/* no claro, o contorno do foco precisa de contraste próprio */
+.sf-light :focus-visible { outline-color: #8C4129; }
+
+::selection { background: #A54F32; color: #FAF7F1; }
+
+input, select, textarea, button { font: inherit; }
+
+img { max-width: 100%; }
+
+/* conteúdo visível só para leitores de tela */
+.sf-sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* link "pular para o conteúdo" */
+.sf-skip {
+  position: fixed; top: 10px; left: 10px; z-index: 200;
+  transform: translateY(-200%);
+  display: inline-flex; align-items: center; height: 48px; padding: 0 20px;
+  background: #A54F32; color: #FAF7F1; text-decoration: none;
+  font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+  transition: transform .2s ease;
+}
+.sf-skip:focus { transform: translateY(0); color: #FAF7F1; }
+
+/* 3. MOVIMENTO REDUZIDO ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* o parallax é desligado no JS; aqui garantimos o estado neutro */
+  [data-parallax] { transform: none !important; }
+}
+
+/* 4. HEADER ================================================================= */
+
+.sf-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+  background: rgba(22, 20, 17, 0);
+  border-bottom: 1px solid rgba(241, 233, 220, 0);
+  transition: background .5s ease, border-color .5s ease;
+  font-family: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  color: #F1E9DC;
+}
+.sf-header.is-solid {
+  background: rgba(22, 20, 17, .97);
+  border-bottom-color: rgba(241, 233, 220, .10);
+}
+.sf-header__inner {
+  max-width: 1440px; margin: 0 auto;
+  padding: 26px clamp(20px, 4vw, 56px);
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  transition: padding .5s ease;
+}
+.sf-header.is-scrolled .sf-header__inner { padding-top: 14px; padding-bottom: 14px; }
+
+.sf-logo {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(20px, 2vw, 25px);
+  letter-spacing: .16em; color: #F1E9DC; text-decoration: none;
+  white-space: nowrap; line-height: 1;
+  /* área de toque de 29px sem deslocar o texto: o padding cresce a área
+     clicável e a margem negativa devolve a mesma caixa de margem ao layout */
+  padding-block: 6px; margin-block: -6px;
+}
+.sf-logo:hover { color: #F1E9DC; }
+
+.sf-nav { display: flex; align-items: center; gap: clamp(18px, 2.4vw, 38px); }
+.sf-nav a {
+  color: rgba(241, 233, 220, .78); text-decoration: none;
+  font-size: 12px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase;
+  padding: 10px 0; border-bottom: 1px solid transparent;
+  transition: color .3s ease, border-color .3s ease;
+}
+.sf-nav a[aria-current="page"] { color: #F1E9DC; border-bottom-color: #A54F32; }
+
+.sf-burger {
+  width: 44px; height: 44px; background: transparent; border: 0; padding: 0;
+  cursor: pointer; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 7px;
+}
+.sf-burger span {
+  display: block; width: 24px; height: 1px; background: #F1E9DC;
+  transition: transform .35s ease;
+}
+.sf-burger[aria-expanded="true"] span:first-child { transform: translateY(4px) rotate(45deg); }
+.sf-burger[aria-expanded="true"] span:last-child { transform: translateY(-4px) rotate(-45deg); }
+
+/* alternância desktop / móvel — antes feita por JS (window.innerWidth < 980),
+   agora por media query: sem "flash" do menu errado no primeiro quadro */
+.sf-m { display: none; }
+@media (max-width: 979px) {
+  .sf-d { display: none !important; }
+  .sf-m { display: flex; }
+}
+
+/* Abaixo de ~420px o conjunto logotipo + botão "Reservar" + menu não cabia na
+   linha e o botão do menu ficava cortado fora da tela. Aqui a linha é apertada
+   o suficiente para caber em telas de 320px sem mudar nada acima desse ponto. */
+@media (max-width: 420px) {
+  .sf-header__inner { padding-left: 16px; padding-right: 16px; gap: 10px; }
+  .sf-logo { font-size: 17px; letter-spacing: .08em; }
+  .sf-m { gap: 4px; }
+  .sf-m > a { padding: 0 12px; font-size: 10px; letter-spacing: .12em; }
+}
+
+.sf-menu {
+  position: fixed; inset: 0; z-index: 55; display: none;
+  background: #161411; color: #F1E9DC;
+  font-family: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  flex-direction: column; justify-content: space-between;
+  padding: 110px 24px 32px; overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.sf-menu.is-open { display: flex; }
+.sf-menu nav { display: flex; flex-direction: column; }
+.sf-menu nav a {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(32px, 9vw, 42px); line-height: 1.15;
+  color: #F1E9DC; text-decoration: none; padding: 10px 0;
+  border-bottom: 1px solid rgba(241, 233, 220, .12);
+}
+.sf-menu nav a[aria-current="page"] { color: #C8714F; }
+body.sf-locked { overflow: hidden; }
+
+/* 5. HOVER E FOCO ==========================================================
+   Reproduzem exatamente os atributos style-hover / style-focus que o runtime
+   de preview aplicava em tempo de execução. Restritos a ponteiros reais para
+   não deixarem o estado "preso" após um toque no celular.                    */
+
+@media (hover: hover) and (pointer: fine) {
+  .hv-c8714f:hover            { color: #C8714F; }
+  .hv-f1e9dc:hover            { color: #F1E9DC; }
+  .hv-faf7f1:hover            { color: #FAF7F1; }
+  .hv-a54f32:hover            { color: #A54F32; }
+  .hv-e9c9b4:hover            { color: #E9C9B4; }
+  .hv-zoom:hover              { transform: scale(1.035); }
+  .hv-zoom-sm:hover           { transform: scale(1.03); }
+  .hv-opacity:hover           { opacity: 1; }
+  .hv-border-dark:not(:disabled):hover { border-color: #161411; }
+
+  /* estes vivem no elemento-pai da imagem: o zoom é no filho */
+  .hv-zoom-parent:hover .hv-zoom-child    { transform: scale(1.035); }
+  .hv-zoom-parent:hover .hv-zoom-child-sm { transform: scale(1.03); }
+
+  .hv-cta-terracotta:hover    { background: #8C4129; gap: 20px; color: #FAF7F1; }
+  .hv-cta-dark:hover          { background: #A54F32; gap: 20px; color: #FAF7F1; }
+  .hv-cta-cream:hover         { background: #FAF7F1; gap: 20px; color: #161411; }
+  .hv-cta-solid-dark:hover    { background: #A54F32; color: #FAF7F1; }
+  .hv-cta-invert:hover        { background: #161411; color: #FAF7F1; }
+  .hv-cta-terracotta-flat:hover { background: #8C4129; color: #FAF7F1; }
+  .hv-outline-light:hover     { background: rgba(241, 233, 220, .1); border-color: #F1E9DC; color: #F1E9DC; }
+  .hv-outline-light-fill:hover { background: rgba(241, 233, 220, .1); color: #F1E9DC; }
+
+  .hv-gap-dark:hover          { gap: 20px; color: #161411; }
+  .hv-gap-light:hover         { gap: 20px; color: #F1E9DC; }
+}
+
+/* o foco por teclado deve mostrar o mesmo realce que o hover nos CTAs */
+.hv-cta-terracotta:focus-visible { background: #8C4129; }
+.hv-cta-dark:focus-visible       { background: #A54F32; color: #FAF7F1; }
+.hv-cta-invert:focus-visible     { background: #161411; color: #FAF7F1; }
+
+.fc-a54f32:focus { border-bottom-color: #A54F32; }
+.fc-c8714f:focus { border-bottom-color: #C8714F; }
+
+/* 6. IMAGENS =================================================================
+   Toda foto do site mora dentro de um contêiner com aspect-ratio definido, por
+   isso não há reflow (CLS) enquanto carrega. O fundo é uma textura quente da
+   própria paleta: se um arquivo faltar, o bloco continua lendo como parte do
+   design em vez de um ícone de imagem quebrada.                              */
+
+.sf-img-frame {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 18% 12%, rgba(200, 113, 79, .22) 0%, rgba(200, 113, 79, 0) 58%),
+    radial-gradient(100% 80% at 82% 88%, rgba(100, 44, 42, .28) 0%, rgba(100, 44, 42, 0) 60%),
+    linear-gradient(145deg, #2A221C 0%, #1D1814 52%, #241C17 100%);
+}
+.sf-img-frame--light {
+  background:
+    radial-gradient(120% 90% at 18% 12%, rgba(165, 79, 50, .14) 0%, rgba(165, 79, 50, 0) 58%),
+    radial-gradient(100% 80% at 82% 88%, rgba(100, 44, 42, .10) 0%, rgba(100, 44, 42, 0) 60%),
+    linear-gradient(145deg, #E9DFD0 0%, #E2D6C4 52%, #EFE6D9 100%);
+}
+
+/* posicionamento absoluto em todos os casos: cada foto vive dentro de uma
+   caixa já dimensionada (aspect-ratio, min-height ou inset), então a imagem
+   nunca participa do fluxo e nunca empurra o layout ao carregar */
+.sf-img {
+  position: absolute; inset: 0;
+  display: block; width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  border: 0;
+}
+.sf-img--contain { object-fit: contain; }
+/* imagem que não carregou não deve exibir o ícone de quebra do navegador */
+.sf-img.is-missing { opacity: 0; }
+
+/* campo que ocupa duas colunas no formulário, mas volta a ocupar a linha
+   inteira quando a grade colapsa para uma coluna (senão estouraria a largura) */
+.sf-span2 { grid-column: span 2; }
+@media (max-width: 620px) { .sf-span2 { grid-column: 1 / -1; } }
+
+/* 7. REVEAL E PARALLAX ====================================================== */
+
+[data-parallax] { will-change: transform; }
+
+/* estado inicial aplicado pelo JS apenas em elementos abaixo da dobra, para
+   não atrasar a pintura do conteúdo visível (e, portanto, o LCP) */
+[data-reveal].sf-rv-up  { opacity: 0; transform: translateY(26px); }
+[data-reveal].sf-rv-img { opacity: 0; clip-path: inset(12% 0 0 0); }
+[data-reveal].sf-rv-in  { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
+
+/* RODAPÉ — os links das colunas tinham 18–20px de altura clicável, abaixo dos
+   24px mínimos (WCAG 2.5.8). O padding aumenta a área de toque e a margem
+   negativa devolve a mesma caixa ao layout: nada muda de lugar na tela.
+   O logotipo do rodapé é o único link sem classe, por isso fica de fora. */
+footer a[class] { padding-block: 4px; margin-block: -4px; }
+
+/* 8. UTILITÁRIOS DE PÁGINA ================================================== */
+
+/* barras de rolagem horizontais discretas (faixa do Instagram, abas, filtros) */
+.sf-scroll-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.sf-scroll-x::-webkit-scrollbar { height: 0; display: none; }
+
+/* CARDÁPIO — navegação por categorias */
+.sf-menu-tabs a { color: #9C8F7E; border-bottom: 1px solid transparent; }
+.sf-menu-tabs a.is-active { color: #F1E9DC; border-bottom-color: #A54F32; }
+
+/* GALERIA */
+.sf-filter { color: #9C8F7E; border: 0; border-bottom: 1px solid transparent; }
+.sf-filter.is-active { color: #F1E9DC; border-bottom-color: #A54F32; }
+.sf-gal-caption { opacity: 0; transition: opacity .4s ease; }
+@media (hover: hover) and (pointer: fine) {
+  .sf-gal-item:hover .sf-gal-caption { opacity: 1; }
+}
+.sf-gal-item:focus-within .sf-gal-caption { opacity: 1; }
+/* sem ponteiro fino (celular/tablet), a legenda fica sempre visível */
+@media (hover: none) {
+  .sf-gal-caption { opacity: 1; }
+}
+.sf-lightbox { display: none; }
+.sf-lightbox.is-open { display: flex; }
+
+/* FORMULÁRIOS */
+.sf-field {
+  height: 52px; background: transparent; border: 0;
+  border-radius: 0; outline: none; padding: 0; font-size: 17px; width: 100%;
+}
+.sf-error {
+  margin: 8px 0 0; font-size: 13px; line-height: 1.4;
+  color: #B3321F; display: none;
+}
+.sf-error.is-shown { display: block; }
+.sf-light .sf-error { color: #8C2A18; }
+.sf-dark .sf-error { color: #F0A58C; }
+[aria-invalid="true"] { border-bottom-color: #B3321F !important; }
+.sf-dark [aria-invalid="true"] { border-bottom-color: #F0A58C !important; }
+
+/* o seletor nativo em fundo escuro precisa de color-scheme para o popup */
+.sf-dark input, .sf-dark select, .sf-dark textarea { color-scheme: dark; }
+
+/* RESERVAS — botões do calendário e dos horários */
+.sf-slot {
+  background: transparent; color: #161411;
+  border: 1px solid rgba(71, 55, 45, .25); cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+.sf-slot[aria-pressed="true"], .sf-slot[aria-checked="true"] {
+  background: #161411; color: #FAF7F1; border-color: #161411;
+}
+.sf-slot:disabled {
+  color: rgba(71, 55, 45, .35); border-color: rgba(71, 55, 45, .12);
+  cursor: not-allowed; text-decoration: line-through;
+}
+.sf-day:disabled { border-color: transparent; }
+.sf-day--closed:disabled { text-decoration: line-through; }
+.sf-step-btn:disabled { cursor: default; }
+.sf-hidden { display: none !important; }
