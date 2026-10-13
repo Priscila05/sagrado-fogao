@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Calda de chocolate">
+<circle cx="60" cy="60" r="60" fill="#FFF6EC"/>
+<path d="M26 56 L94 56 L86 92 Q84 100 74 100 L46 100 Q36 100 34 92 Z" fill="#FFFFFF" stroke="#E6D5C3" stroke-width="2"/>
+  <path d="M30 60 L90 60 L84 90 Q82 96 74 96 L46 96 Q38 96 36 90 Z" fill="#3B2316"/>
+  <ellipse cx="60" cy="56" rx="34" ry="9" fill="#FFFFFF" stroke="#E6D5C3" stroke-width="2"/><path d="M60 14 q6 14 6 22 q0 10 -6 14 q-6 -4 -6 -14 q0 -8 6 -22 Z" fill="#4A2C1B"/><circle cx="46" cy="38" r="5" fill="#4A2C1B"/><circle cx="76" cy="32" r="4" fill="#4A2C1B"/>
+</svg>

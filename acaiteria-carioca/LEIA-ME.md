@@ -1,8 +1,13 @@
 # Prévia — Açaiteria Carioca
 
-Site estático feito a partir do modelo da Monter (`site-base/`, da Bromélia), adaptado para
-açaiteria: identidade roxo + amarelo da fachada, cardápio de açaí, a seção **Monte seu açaí**
-(que manda o pedido pronto pro WhatsApp) e o botão **Fazer pedido** apontando pro Goomer da loja.
+Site estático feito a partir do modelo da Monter (`site-base/`, da Bromélia), redesenhado no
+estilo de açaiteria: magenta e roxo do açaí com o amarelo do toldo, títulos pesados em caixa alta,
+cards de copo, banners de destaque e os complementos em ícones redondos. Tem o cardápio,
+a seção **Monte seu açaí** (que manda o pedido pronto pro WhatsApp) e o botão **Fazer pedido**
+apontando pro Goomer da loja.
+
+Fontes: **Montserrat** (800/900) nos títulos, **Roboto** nos textos e **Pacifico** nos detalhes
+em manuscrito — o modelo da Bromélia usa Inter, que não dá o peso que esse tipo de loja pede.
 
 ## Como subir no Netlify
 

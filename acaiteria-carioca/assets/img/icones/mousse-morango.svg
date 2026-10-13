@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Mousse de morango">
+<circle cx="60" cy="60" r="60" fill="#FFF6EC"/>
+<path d="M26 56 L94 56 L86 92 Q84 100 74 100 L46 100 Q36 100 34 92 Z" fill="#FFFFFF" stroke="#E6D5C3" stroke-width="2"/>
+  <path d="M30 60 L90 60 L84 90 Q82 96 74 96 L46 96 Q38 96 36 90 Z" fill="#F7A8BF"/>
+  <ellipse cx="60" cy="56" rx="34" ry="9" fill="#FFFFFF" stroke="#E6D5C3" stroke-width="2"/><path d="M60 20 q16 0 16 16 q0 16 -16 26 q-16 -10 -16 -26 q0 -16 16 -16 Z" fill="#E5325B"/><path d="M52 24 q8 -8 16 0 q-8 4 -16 0 Z" fill="#49A845"/>
+</svg>

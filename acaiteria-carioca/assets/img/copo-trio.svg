@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="46 64 808 516" width="808" height="516" role="img" aria-label="Três copos de açaí montados com frutas, granola e coberturas">
+<defs>
+  <linearGradient id="vidro" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity=".30"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".04"/><stop offset="1" stop-color="#FFFFFF" stop-opacity=".18"/>
+  </linearGradient>
+  <radialGradient id="brilhoFundo" cx=".5" cy=".45" r=".55">
+    <stop offset="0" stop-color="#FFC627" stop-opacity=".30"/><stop offset="1" stop-color="#FFC627" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<ellipse cx="450" cy="300" rx="430" ry="290" fill="url(#brilhoFundo)"/>
+<!-- respingo de açaí -->
+<path d="M126 372 Q92 300 150 266 Q118 196 196 182 Q232 110 310 146 Q360 86 432 128 Q506 82 556 148 Q640 112 666 190 Q752 196 736 272 Q790 320 742 384 Q770 452 690 470 Q660 540 584 512 Q528 566 462 524 Q396 568 342 512 Q268 542 236 480 Q156 468 160 406 Z"
+      fill="#7A0F45" opacity=".8"/>
+<path d="M196 352 Q170 300 212 272 Q192 220 250 212 Q278 160 334 186 Q372 142 424 174 Q478 142 514 190 Q574 164 592 220 Q654 226 642 280 Q680 316 646 360 Q666 410 608 424 Q586 474 532 454 Q492 492 444 462 Q396 494 358 454 Q304 476 282 432 Q224 424 226 380 Z" fill="#C92570" opacity=".45"/>
+<g fill="#C92570" opacity=".6"><circle cx="118" cy="188" r="16"/><circle cx="792" cy="214" r="13"/><circle cx="96" cy="470" r="11"/><circle cx="820" cy="452" r="18"/><circle cx="452" cy="60" r="10"/></g>
+<g fill="#FFC627" opacity=".85"><circle cx="156" cy="128" r="9"/><circle cx="748" cy="118" r="7"/><circle cx="836" cy="332" r="8"/><circle cx="64" cy="318" r="7"/></g>
+<g transform="translate(190 250) scale(0.78)">
+  <path d="M-80 8 Q-74 -50 0 -60 Q74 -50 80 8 Z" fill="#FFF3D9"/>
+  <path d="M-40 -86 Q-18 -86 -18 -64 Q-18 -42 -40 -28 Q-62 -42 -62 -64 Q-62 -86 -40 -86 Z" fill="#E5325B"/>
+  <path d="M-51 -82 Q-40 -93 -29 -82 Q-40 -77 -51 -82 Z" fill="#49A845"/>
+  <path d="M34 -94 Q56 -94 56 -72 Q56 -50 34 -36 Q12 -50 12 -72 Q12 -94 34 -94 Z" fill="#D8274E"/>
+  <path d="M23 -90 Q34 -101 45 -90 Q34 -85 23 -90 Z" fill="#49A845"/>
+  <g fill="#FFFFFF" opacity=".9"><circle cx="-66" cy="2" r="4"/><circle cx="-4" cy="-6" r="3.4"/><circle cx="70" cy="0" r="4"/></g>
+  <clipPath id="ca"><path d="M-86 0 L-62 236 Q-59 258 -36 258 L36 258 Q59 258 62 236 L86 0 Z"/></clipPath>
+  <g clip-path="url(#ca)"><rect x="-90" y="0" width="180" height="70" fill="#6B2192"/><rect x="-90" y="70" width="180" height="34" fill="#FFF3D9"/><rect x="-90" y="104" width="180" height="20" fill="#D8A657"/><rect x="-90" y="124" width="180" height="134" fill="#4A1264"/>
+    <rect x="-90" y="-4" width="180" height="266" fill="url(#vidro)"/>
+  </g>
+  <path d="M-86 0 L-62 236 Q-59 258 -36 258 L36 258 Q59 258 62 236 L86 0 Z" fill="none" stroke="#FFFFFF" stroke-opacity=".8" stroke-width="5"/>
+  <ellipse cx="0" cy="0" rx="86" ry="20" fill="none" stroke="#FFFFFF" stroke-opacity=".95" stroke-width="6"/>
+  <path d="M-52 36 L-38 222" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="9" stroke-linecap="round"/>
+</g>
+<g transform="translate(700 250) scale(0.78)">
+  <path d="M-80 8 Q-74 -50 0 -60 Q74 -50 80 8 Z" fill="#FFF6E2"/>
+  <g><circle cx="-34" cy="-48" r="25" fill="#7FB03C"/><circle cx="-34" cy="-48" r="18" fill="#A9D15F"/><circle cx="-34" cy="-48" r="6" fill="#FFF7E0"/></g>
+  <g fill="#7B4BB7"><circle cx="26" cy="-56" r="17"/><circle cx="54" cy="-38" r="14"/><circle cx="22" cy="-24" r="13"/></g>
+  <g fill="#D8A657"><circle cx="-66" cy="-2" r="7"/><circle cx="72" cy="-4" r="6"/></g>
+  <clipPath id="cb"><path d="M-86 0 L-62 236 Q-59 258 -36 258 L36 258 Q59 258 62 236 L86 0 Z"/></clipPath>
+  <g clip-path="url(#cb)"><rect x="-90" y="0" width="180" height="80" fill="#FFF6E2"/><rect x="-90" y="80" width="180" height="40" fill="#4A1264"/><rect x="-90" y="120" width="180" height="20" fill="#D8A657"/><rect x="-90" y="140" width="180" height="118" fill="#F2DEB8"/>
+    <rect x="-90" y="-4" width="180" height="266" fill="url(#vidro)"/>
+  </g>
+  <path d="M-86 0 L-62 236 Q-59 258 -36 258 L36 258 Q59 258 62 236 L86 0 Z" fill="none" stroke="#FFFFFF" stroke-opacity=".8" stroke-width="5"/>
+  <ellipse cx="0" cy="0" rx="86" ry="20" fill="none" stroke="#FFFFFF" stroke-opacity=".95" stroke-width="6"/>
+  <path d="M-52 36 L-38 222" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="9" stroke-linecap="round"/>
+</g>
+<g transform="translate(445 196) scale(1.0)">
+  <path d="M-80 8 Q-74 -52 0 -62 Q74 -52 80 8 Z" fill="#4A1264"/>
+  <path d="M-58 -14 Q-32 -44 0 -48 Q-12 -28 -28 -10 Z" fill="#6B2192" opacity=".7"/>
+  <g fill="#D8A657"><circle cx="-56" cy="-4" r="8"/><circle cx="-30" cy="-18" r="7"/><circle cx="4" cy="-12" r="8"/><circle cx="36" cy="-20" r="7"/><circle cx="62" cy="-6" r="8"/></g>
+  <g><circle cx="-34" cy="-46" r="23" fill="#FFD95E"/><circle cx="-34" cy="-46" r="15" fill="#F7C93F"/>
+     <circle cx="34" cy="-52" r="20" fill="#FFD95E"/><circle cx="34" cy="-52" r="13" fill="#F7C93F"/></g>
+  <path d="M0 -104 Q20 -104 20 -84 Q20 -62 0 -48 Q-20 -62 -20 -84 Q-20 -104 0 -104 Z" fill="#E5325B"/>
+  <path d="M-11 -100 Q0 -111 11 -100 Q0 -95 -11 -100 Z" fill="#49A845"/>
+  <clipPath id="cc"><path d="M-86 0 L-62 236 Q-59 258 -36 258 L36 258 Q59 258 62 236 L86 0 Z"/></clipPath>
+  <g clip-path="url(#cc)"><rect x="-90" y="0" width="180" height="78" fill="#6B2192"/><rect x="-90" y="78" width="180" height="34" fill="#FFF3D9"/><rect x="-90" y="112" width="180" height="22" fill="#D8A657"/><rect x="-90" y="134" width="180" height="66" fill="#4A1264"/><rect x="-90" y="200" width="180" height="26" fill="#FFF3D9"/><rect x="-90" y="226" width="180" height="32" fill="#4A1264"/>
+    <rect x="-90" y="-4" width="180" height="266" fill="url(#vidro)"/>
+  </g>
+  <path d="M-86 0 L-62 236 Q-59 258 -36 258 L36 258 Q59 258 62 236 L86 0 Z" fill="none" stroke="#FFFFFF" stroke-opacity=".8" stroke-width="5"/>
+  <ellipse cx="0" cy="0" rx="86" ry="20" fill="none" stroke="#FFFFFF" stroke-opacity=".95" stroke-width="6"/>
+  <path d="M-52 36 L-38 222" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="9" stroke-linecap="round"/>
+</g>
+</svg>
