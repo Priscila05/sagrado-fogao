@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420" width="600" height="420" role="img" aria-label="Mapa ilustrado do Jardim Ubirajara com a localização da loja">
+  <rect width="600" height="420" fill="#FFEDD2"/>
+  <g fill="#F7DCB0">
+    <rect x="30" y="40" width="130" height="90" rx="8"/><rect x="200" y="20" width="150" height="70" rx="8"/>
+    <rect x="400" y="60" width="160" height="110" rx="8"/><rect x="60" y="250" width="140" height="120" rx="8"/>
+    <rect x="260" y="230" width="120" height="90" rx="8"/><rect x="430" y="270" width="130" height="110" rx="8"/>
+  </g>
+  <g fill="#CFE8B8"><ellipse cx="500" cy="40" rx="70" ry="34"/><ellipse cx="120" cy="200" rx="54" ry="24"/></g>
+  <g stroke="#FFFDF8" fill="none" stroke-linecap="round">
+    <path d="M-20 200 Q 160 180 300 210 T 620 190" stroke-width="26"/>
+    <path d="M230 -20 Q 250 180 215 440" stroke-width="18"/>
+    <path d="M400 -20 L 430 440" stroke-width="12"/>
+    <path d="M-20 330 Q 200 310 620 340" stroke-width="12"/>
+  </g>
+  <text x="40" y="206" font-family="Roboto,sans-serif" font-size="13" font-weight="700" fill="#A9845A" letter-spacing="2">R. ZIKE TUMA</text>
+  <g transform="translate(300 170)">
+    <circle r="40" fill="#55147E" opacity=".16"/>
+    <path d="M0 -46 C 19 -46 31 -32 31 -15 C 31 7 0 32 0 32 C 0 32 -31 7 -31 -15 C -31 -32 -19 -46 0 -46 Z" fill="#55147E"/>
+    <circle cy="-17" r="11" fill="#FFC627"/>
+  </g>
+</svg>

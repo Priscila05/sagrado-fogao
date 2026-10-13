@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" aria-label="Ilustração da fachada roxa com toldo amarelo e luzinhas">
+  <defs>
+    <linearGradient id="ceu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A0940"/><stop offset="1" stop-color="#55147E"/></linearGradient>
+    <linearGradient id="toldo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD95E"/><stop offset="1" stop-color="#E9A800"/></linearGradient>
+  </defs>
+  <rect width="800" height="520" fill="url(#ceu)"/>
+  <g fill="#FFFDF8" opacity=".35"><circle cx="90" cy="60" r="2"/><circle cx="240" cy="40" r="1.6"/><circle cx="600" cy="54" r="2"/><circle cx="720" cy="96" r="1.6"/><circle cx="420" cy="30" r="1.6"/></g>
+  <!-- prédio -->
+  <rect x="80" y="90" width="640" height="430" fill="#4A1264"/>
+  <rect x="80" y="90" width="640" height="14" fill="#36094C"/>
+  <!-- placa -->
+  <rect x="300" y="120" width="200" height="104" rx="10" fill="#2A0940" stroke="#FFC627" stroke-width="3"/>
+  <circle cx="400" cy="158" r="28" fill="none" stroke="#FFFDF8" stroke-width="3"/>
+  <path d="M379 167 q10.5 -8 21 0 q10.5 8 21 0" fill="none" stroke="#5EC8D8" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="400" cy="147" r="8" fill="#FFC627"/>
+  <text x="400" y="211" text-anchor="middle" font-family="Inter,sans-serif" font-size="17" font-weight="600" fill="#FFFDF8">Carioca</text>
+  <!-- toldo -->
+  <path d="M120 250 L680 250 L700 330 L140 346 Z" fill="url(#toldo)"/>
+  <path d="M120 250 L680 250 L684 266 L122 266 Z" fill="#FFE48A" opacity=".7"/>
+  <!-- luzinhas -->
+  <path d="M140 346 Q400 368 700 330" fill="none" stroke="#FFE48A" stroke-width="2" opacity=".8"/>
+  <g fill="#FFE48A">
+    <circle cx="180" cy="356" r="5"/><circle cx="240" cy="362" r="5"/><circle cx="300" cy="366" r="5"/><circle cx="360" cy="368" r="5"/>
+    <circle cx="420" cy="366" r="5"/><circle cx="480" cy="362" r="5"/><circle cx="540" cy="356" r="5"/><circle cx="600" cy="348" r="5"/><circle cx="660" cy="338" r="5"/>
+  </g>
+  <!-- interior -->
+  <rect x="150" y="372" width="500" height="148" fill="#36094C"/>
+  <rect x="180" y="392" width="150" height="92" rx="6" fill="#2A0940" stroke="#FFC627" stroke-width="2"/>
+  <g fill="#FFC627" opacity=".75"><rect x="196" y="408" width="80" height="6" rx="3"/><rect x="196" y="424" width="110" height="6" rx="3"/><rect x="196" y="440" width="90" height="6" rx="3"/><rect x="196" y="456" width="100" height="6" rx="3"/></g>
+  <!-- balcão e copos -->
+  <rect x="370" y="430" width="240" height="90" rx="8" fill="#55147E"/>
+  <g>
+    <path d="M404 398 L412 452 L444 452 L452 398 Z" fill="#FFFDF8" opacity=".9"/>
+    <path d="M408 420 L414 452 L442 452 L448 420 Z" fill="#4A1264"/>
+    <path d="M470 406 L477 452 L505 452 L512 406 Z" fill="#FFFDF8" opacity=".9"/>
+    <path d="M473 426 L478 452 L504 452 L509 426 Z" fill="#7B2EA6"/>
+    <path d="M534 410 L540 452 L566 452 L572 410 Z" fill="#FFFDF8" opacity=".9"/>
+    <path d="M537 430 L541 452 L565 452 L569 430 Z" fill="#FFF3D9"/>
+  </g>
+  <!-- mesinha amarela -->
+  <rect x="640" y="446" width="110" height="10" rx="5" fill="#FFC627"/>
+  <rect x="686" y="456" width="10" height="64" fill="#E9A800"/>
+  <rect x="648" y="474" width="34" height="46" rx="6" fill="#FFC627"/>
+  <rect x="704" y="474" width="34" height="46" rx="6" fill="#FFC627"/>
+  <rect x="0" y="498" width="800" height="22" fill="#2A0940"/>
+  <rect x="0" y="498" width="800" height="4" fill="#FFC627" opacity=".5"/>
+</svg>
