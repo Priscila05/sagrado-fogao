@@ -94,6 +94,12 @@ npm run build && npm run preview   # em um terminal
 npm run test:e2e                   # em outro: testes de navegador (Playwright)
 ```
 
+As baterias compartilham **um único perfil do Chromium** (`e2e/.artifacts/profile`) de
+propósito: é assim que a persistência "fechar e reabrir o aplicativo" é testada de verdade.
+Por isso elas precisam rodar **em sequência** — duas execuções simultâneas disputam o mesmo
+perfil e falham sem que haja problema no aplicativo. Também não recompile (`npm run build`)
+com os testes em andamento.
+
 Os testes de navegador usam o **Playwright**, que não é dependência do projeto — instale-o
 globalmente (`npm i -g playwright`) ou rode os roteiros de `e2e/` com um Playwright já
 disponível no ambiente. Eles exercitam o build de produção de verdade: cadastro, edição e

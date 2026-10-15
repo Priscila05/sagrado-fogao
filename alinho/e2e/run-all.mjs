@@ -3,6 +3,9 @@
  * mesmo perfil do Chromium de propósito, para testar persistência real).
  *
  * Pré-requisitos: `npm run build` e, em outro terminal, `npm run preview`.
+ *
+ * As baterias dividem o mesmo perfil do Chromium, então precisam rodar em
+ * sequência: duas execuções ao mesmo tempo disputam o perfil e falham sozinhas.
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
