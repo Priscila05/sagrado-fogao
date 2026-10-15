@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, MoreHorizontal, Plus, Search } from 'lucide-react';
 import { SidebarContent } from './Sidebar';
-import { NAV_ITEMS } from './navigation';
+import { navItemsFor } from './navigation';
 import { LogoMark } from '../../design/Logo';
 import { Button } from '../ui/Button';
 import { useData } from '../../state/DataProvider';
+import { useAuth } from '../../auth/AuthProvider';
 import { StorageNotice } from './StorageNotice';
 
 /** Application frame: fixed sidebar on desktop, drawer + tab bar on mobile. */
@@ -14,6 +15,7 @@ export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const { dataset } = useData();
+  const { permissions } = useAuth();
   const mainRef = useRef<HTMLElement>(null);
 
   // Close the drawer and reset scroll whenever the route changes.
@@ -31,7 +33,7 @@ export function AppShell() {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [drawerOpen]);
 
-  const primaryItems = NAV_ITEMS.filter((item) => item.primary);
+  const primaryItems = navItemsFor(permissions).filter((item) => item.primary);
 
   return (
     <div className="flex h-dvh overflow-hidden bg-canvas">

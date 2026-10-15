@@ -1,9 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { Moon, Sun, X } from 'lucide-react';
+import { LogOut, Moon, Sun, X } from 'lucide-react';
 import { LogoLockup } from '../../design/Logo';
-import { NAV_ITEMS } from './navigation';
+import { navItemsFor } from './navigation';
 import { useTheme } from '../../hooks/useTheme';
 import { useData } from '../../state/DataProvider';
+import { useAuth } from '../../auth/AuthProvider';
+import { ROLE_LABEL, displayName } from '../../auth/roles';
 import { formatNumber } from '../../utils/format';
 import { bucketActivities } from '../../services/metrics';
 
@@ -24,6 +26,8 @@ function NavBadge({ count, tone }: { count: number; tone: 'critical' | 'neutral'
 export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const { resolved, toggle } = useTheme();
   const { leads, activities, dataset } = useData();
+  const { mode, profile, permissions, signOut } = useAuth();
+  const items = navItemsFor(permissions);
   const buckets = bucketActivities(activities);
   const pendingToday = buckets.overdue.length + buckets.today.length;
 
@@ -50,7 +54,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-2.5 py-2">
         <ul className="flex flex-col gap-0.5">
-          {NAV_ITEMS.map((item) => {
+          {items.map((item) => {
             const badge = counts[item.to];
             return (
               <li key={item.to}>
@@ -105,9 +109,28 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}
           {resolved === 'dark' ? 'Modo claro' : 'Modo escuro'}
         </button>
-        <p className="mt-2 px-2.5 text-2xs text-subtle">
-          Dados salvos apenas neste navegador.
-        </p>
+        {mode === 'equipe' && profile ? (
+          <div className="mt-2 border-t border-line pt-2.5">
+            <p className="truncate px-2.5 text-xs font-medium text-ink" title={profile.email}>
+              {displayName(profile)}
+            </p>
+            <p className="px-2.5 text-2xs text-subtle">
+              {ROLE_LABEL[profile.role]} · dados da empresa
+            </p>
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="focus-ring mt-1.5 flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-sunken hover:text-ink"
+            >
+              <LogOut className="h-3.5 w-3.5 text-subtle" aria-hidden="true" />
+              Sair
+            </button>
+          </div>
+        ) : (
+          <p className="mt-2 px-2.5 text-2xs text-subtle">
+            Dados salvos apenas neste navegador.
+          </p>
+        )}
       </div>
     </div>
   );

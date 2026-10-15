@@ -130,6 +130,7 @@ export function normalizeLead(input: unknown, now = new Date().toISOString()): L
   const createdAt = cleanIso(raw.createdAt, now);
   return {
     id: cleanId(raw.id),
+    ownerId: cleanIdOrNull(raw.ownerId),
     contactName: cleanString(raw.contactName),
     establishmentName: cleanString(raw.establishmentName),
     segment: cleanString(raw.segment, 80),
@@ -163,6 +164,7 @@ export function normalizeCompany(input: unknown, now = new Date().toISOString())
   const createdAt = cleanIso(raw.createdAt, now);
   return {
     id: cleanId(raw.id),
+    ownerId: cleanIdOrNull(raw.ownerId),
     name: cleanString(raw.name),
     segment: cleanString(raw.segment, 80),
     phone: cleanString(raw.phone, 40),
@@ -189,6 +191,7 @@ export function normalizeActivity(input: unknown, now = new Date().toISOString()
   const done = cleanBoolean(raw.done);
   return {
     id: cleanId(raw.id),
+    ownerId: cleanIdOrNull(raw.ownerId),
     title: cleanString(raw.title),
     type: oneOf(raw.type, ACTIVITY_TYPES, 'tarefa'),
     leadId: cleanIdOrNull(raw.leadId),
@@ -210,6 +213,7 @@ export function normalizeInteraction(input: unknown, now = new Date().toISOStrin
   const raw = (input ?? {}) as Record<string, unknown>;
   return {
     id: cleanId(raw.id),
+    authorId: cleanIdOrNull(raw.authorId),
     leadId: cleanIdOrNull(raw.leadId),
     companyId: cleanIdOrNull(raw.companyId),
     type: oneOf(raw.type, INTERACTION_TYPES, 'observacao'),

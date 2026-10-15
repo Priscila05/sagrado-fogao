@@ -8,7 +8,8 @@ import {
   useState,
 } from 'react';
 import type { ReactNode } from 'react';
-import { repositories } from '../repositories';
+import { repositories, onRepositoryModeChange } from '../repositories';
+import { useAuth } from '../auth/AuthProvider';
 import { backendKind } from '../db/backend';
 import { createDefaultSettings } from '../models/defaults';
 import type {
@@ -64,6 +65,8 @@ export interface DatasetCounts {
 
 export interface DataContextValue {
   status: Status;
+  /** De onde vêm os dados: navegador deste computador ou banco da empresa. */
+  source: 'local' | 'equipe';
   error: string | null;
   storageMode: 'indexeddb' | 'memory' | 'unknown';
   settings: Settings;
@@ -176,6 +179,8 @@ function countDataset(
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const toast = useToast();
+  const { mode, status: authStatus, profile } = useAuth();
+  const isTeam = mode === 'equipe';
 
   const [status, setStatus] = useState<Status>('loading');
   const [error, setError] = useState<string | null>(null);
@@ -245,8 +250,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // No modo equipe só há dados depois do login; antes disso não há o que ler.
+    if (isTeam && authStatus !== 'logado') {
+      setStatus(authStatus === 'carregando' ? 'loading' : 'ready');
+      return;
+    }
     void load();
-  }, [load]);
+  }, [load, isTeam, authStatus]);
+
+  // Trocar entre banco local e banco da empresa recarrega tudo.
+  useEffect(() => onRepositoryModeChange(() => void load()), [load]);
 
   /** Wraps a mutation with the saving flag and a user-visible error toast. */
   const run = useCallback(
@@ -277,13 +290,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     async (draft: {
       leadId?: string | null;
       companyId?: string | null;
+      authorId?: string | null;
       type: InteractionType;
       description: string;
       occurredAt?: string | null;
       automatic?: boolean;
     }): Promise<Interaction> => {
       const activeDataset = dataRef.current.settings.activeDataset;
-      const record = buildInteraction(draft, activeDataset);
+      const record = buildInteraction({ authorId: profile?.id ?? null, ...draft }, activeDataset);
       const saved = await repositories.interactions.save(record);
       setAllInteractions((current) => [...current, saved]);
       return saved;
@@ -298,7 +312,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       run('createLead', async () => {
         const current = dataRef.current;
         const lead = buildLead(
-          draft,
+          // Quem cadastra passa a ser o responsável, a menos que a distribuição
+          // já tenha indicado outra pessoa.
+          { ownerId: profile?.id ?? null, ...draft },
           current.settings.activeDataset,
           firstStageId(current.settings.stages),
         );
@@ -315,7 +331,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         toast.success('Lead cadastrado');
         return saved;
       }),
-    [run, logInteraction, toast],
+    [run, logInteraction, toast, profile],
   );
 
   const updateLead = useCallback<DataActions['updateLead']>(
@@ -397,13 +413,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const createCompany = useCallback<DataActions['createCompany']>(
     (draft) =>
       run('createCompany', async () => {
-        const company = buildCompany(draft, dataRef.current.settings.activeDataset);
+        const company = buildCompany(
+          { ownerId: profile?.id ?? null, ...draft },
+          dataRef.current.settings.activeDataset,
+        );
         const saved = await repositories.companies.save(company);
         setAllCompanies((rows) => [...rows, saved]);
         toast.success('Empresa cadastrada');
         return saved;
       }),
-    [run, toast],
+    [run, toast, profile],
   );
 
   const updateCompany = useCallback<DataActions['updateCompany']>(
@@ -592,13 +611,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const createActivity = useCallback<DataActions['createActivity']>(
     (draft) =>
       run('createActivity', async () => {
-        const activity = buildActivity(draft, dataRef.current.settings.activeDataset);
+        const activity = buildActivity(
+          { ownerId: profile?.id ?? null, ...draft },
+          dataRef.current.settings.activeDataset,
+        );
         const saved = await repositories.activities.save(activity);
         setAllActivities((rows) => [...rows, saved]);
         toast.success('Atividade criada');
         return saved;
       }),
-    [run, toast],
+    [run, toast, profile],
   );
 
   const updateActivity = useCallback<DataActions['updateActivity']>(
@@ -1012,6 +1034,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const seedDemo = useCallback<DataActions['seedDemo']>(
     async () => {
+      if (isTeam) {
+        toast.error(
+          'Indisponível no modo equipe',
+          'Os dados de demonstração existem apenas no modo local, para não poluir o banco da empresa.',
+        );
+        return false;
+      }
       const result = await run('seedDemo', async () => {
         const current = dataRef.current;
         // Replace any previous demo records so the demo never accumulates.
@@ -1207,7 +1236,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return {
       status,
       error,
-      storageMode: backendKind(),
+      source: isTeam ? 'equipe' : 'local',
+      storageMode: isTeam ? 'indexeddb' : backendKind(),
       settings,
       stages,
       dataset,
@@ -1228,6 +1258,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [
     status,
     error,
+    isTeam,
     settings,
     stages,
     dataset,

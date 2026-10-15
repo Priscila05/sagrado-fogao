@@ -4,3 +4,7 @@ dist-zip
 *.local
 .DS_Store
 e2e/.artifacts
+.env
+.env.local
+.env.*.local
+dist-teste-equipe

@@ -5,6 +5,7 @@ import { App } from './App';
 import { ThemeProvider } from './hooks/useTheme';
 import { ToastProvider } from './components/ui/Toast';
 import { DataProvider } from './state/DataProvider';
+import { AuthProvider } from './auth/AuthProvider';
 import { registerServiceWorker } from './registerServiceWorker';
 import './index.css';
 
@@ -17,11 +18,13 @@ createRoot(container).render(
   <StrictMode>
     <ThemeProvider>
       <ToastProvider>
-        <DataProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </DataProvider>
+        <AuthProvider>
+          <DataProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </DataProvider>
+        </AuthProvider>
       </ToastProvider>
     </ThemeProvider>
   </StrictMode>,

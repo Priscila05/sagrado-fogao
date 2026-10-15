@@ -8,6 +8,9 @@ import { PageHeader, Panel, PanelHeader, SegmentedControl } from '../components/
 import { StagesEditor } from '../components/settings/StagesEditor';
 import { TagListEditor } from '../components/settings/TagListEditor';
 import { BackupPanel } from '../components/settings/BackupPanel';
+import { AccountPanel } from '../components/settings/AccountPanel';
+import { CloudUploadPanel } from '../components/settings/CloudUploadPanel';
+import { useAuth } from '../auth/AuthProvider';
 import { formatNumber } from '../utils/format';
 import { APP_VERSION } from '../models/defaults';
 import type { Dataset } from '../models/types';
@@ -15,6 +18,8 @@ import type { Dataset } from '../models/types';
 export function SettingsPage() {
   const { settings, counts, storageMode, dataset, actions, saving } = useData();
   const { preference, setPreference } = useTheme();
+  const { mode, permissions } = useAuth();
+  const isTeam = mode === 'equipe';
   const [eraseOpen, setEraseOpen] = useState(false);
   const [clearDemoOpen, setClearDemoOpen] = useState(false);
 
@@ -31,6 +36,12 @@ export function SettingsPage() {
         title="Preferências e dados"
         description="Personalize o funil, gerencie backups e entenda exatamente onde seus dados ficam."
       />
+
+      {isTeam ? (
+        <Panel>
+          <AccountPanel />
+        </Panel>
+      ) : null}
 
       <Panel>
         <PanelHeader title="Aparência" />
@@ -55,14 +66,21 @@ export function SettingsPage() {
         </div>
       </Panel>
 
-      <Panel>
-        <StagesEditor />
-      </Panel>
+      {permissions.manageSettings ? (
+        <Panel>
+          <StagesEditor />
+        </Panel>
+      ) : null}
 
+      {permissions.manageSettings ? (
       <Panel>
         <PanelHeader
           title="Listas do cadastro"
-          description="Opções oferecidas nos formulários de lead e empresa."
+          description={
+            isTeam
+              ? 'Valem para toda a empresa: aparecem nos formulários de todo mundo.'
+              : 'Opções oferecidas nos formulários de lead e empresa.'
+          }
         />
         <div className="divide-y divide-line">
           <TagListEditor
@@ -95,11 +113,21 @@ export function SettingsPage() {
           />
         </div>
       </Panel>
+      ) : null}
 
-      <Panel>
-        <BackupPanel />
-      </Panel>
+      {permissions.exportBackup ? (
+        <Panel>
+          <BackupPanel />
+        </Panel>
+      ) : null}
 
+      {isTeam && permissions.importBackup ? (
+        <Panel>
+          <CloudUploadPanel />
+        </Panel>
+      ) : null}
+
+      {!isTeam ? (
       <Panel>
         <PanelHeader
           title="Dados de demonstração"
@@ -143,10 +171,31 @@ export function SettingsPage() {
           </div>
         </div>
       </Panel>
+      ) : null}
 
       <Panel>
-        <PanelHeader title="Privacidade e armazenamento" />
+        <PanelHeader title={isTeam ? 'Privacidade e acesso' : 'Privacidade e armazenamento'} />
         <div className="flex flex-col gap-3 px-4 py-4 text-sm leading-relaxed text-muted sm:px-5">
+          {isTeam ? (
+            <>
+              <p className="flex items-start gap-2.5">
+                <Database className="mt-0.5 h-4 w-4 shrink-0 text-subtle" aria-hidden="true" />
+                <span>
+                  Os registros ficam no banco da empresa no Supabase, com acesso individual por
+                  login. Cada pessoa enxerga apenas o que o seu papel permite, e essa regra é
+                  aplicada pelo próprio banco (RLS), não só pela tela.
+                </span>
+              </p>
+              <p className="flex items-start gap-2.5">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-subtle" aria-hidden="true" />
+                <span>
+                  O navegador guarda apenas a sua sessão e a preferência de tema. Ao sair, o acesso
+                  aos dados da empresa é encerrado neste dispositivo.
+                </span>
+              </p>
+            </>
+          ) : (
+          <>
           <p className="flex items-start gap-2.5">
             <Database className="mt-0.5 h-4 w-4 shrink-0 text-subtle" aria-hidden="true" />
             <span>
@@ -166,6 +215,8 @@ export function SettingsPage() {
               é indicada para dados sensíveis nem para compartilhamento entre equipes.
             </span>
           </p>
+          </>
+          )}
           <dl className="mt-1 grid grid-cols-2 gap-3 rounded-md border border-line bg-sunken/40 p-3 sm:grid-cols-4">
             {[
               ['Leads', counts.real.leads],
@@ -193,6 +244,7 @@ export function SettingsPage() {
         </div>
       </Panel>
 
+      {permissions.eraseData && !isTeam ? (
       <Panel className="border-critical/25">
         <PanelHeader
           title="Apagar meus dados"
@@ -212,6 +264,7 @@ export function SettingsPage() {
           </Button>
         </div>
       </Panel>
+      ) : null}
 
       <ConfirmDialog
         open={eraseOpen}

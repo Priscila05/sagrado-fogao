@@ -63,6 +63,8 @@ export function buildInteraction(
   draft: {
     leadId?: string | null;
     companyId?: string | null;
+    /** Quem registrou (modo equipe). */
+    authorId?: string | null;
     type: InteractionType;
     description: string;
     occurredAt?: string | null;
@@ -74,6 +76,7 @@ export function buildInteraction(
   return normalizeInteraction(
     {
       id: createId(),
+      authorId: draft.authorId ?? null,
       leadId: draft.leadId ?? null,
       companyId: draft.companyId ?? null,
       type: draft.type,

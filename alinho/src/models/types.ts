@@ -50,6 +50,11 @@ export interface Stage {
 
 export interface Lead {
   id: string;
+  /**
+   * Responsável pelo lead no modo equipe (id do perfil). No modo local, em que
+   * só existe uma pessoa, fica nulo e nada muda.
+   */
+  ownerId: string | null;
   contactName: string;
   establishmentName: string;
   segment: string;
@@ -79,6 +84,8 @@ export interface Lead {
 
 export interface Company {
   id: string;
+  /** Responsável no modo equipe. */
+  ownerId: string | null;
   name: string;
   segment: string;
   phone: string;
@@ -98,6 +105,8 @@ export interface Company {
 
 export interface Activity {
   id: string;
+  /** Responsável no modo equipe. */
+  ownerId: string | null;
   title: string;
   type: ActivityType;
   leadId: string | null;
@@ -115,6 +124,8 @@ export interface Activity {
 
 export interface Interaction {
   id: string;
+  /** Quem registrou, no modo equipe. */
+  authorId: string | null;
   leadId: string | null;
   companyId: string | null;
   type: InteractionType;

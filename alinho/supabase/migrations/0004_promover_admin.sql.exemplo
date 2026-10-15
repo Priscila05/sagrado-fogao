@@ -1,0 +1,27 @@
+-- ============================================================================
+-- Exemplo (NÃO é uma migração automática): ajustes de papel e de equipe.
+-- Rode manualmente no SQL Editor quando precisar, trocando os e-mails.
+-- ============================================================================
+
+-- Tornar alguém administrador
+update public.profiles set role = 'admin'
+where email = 'voce@suaempresa.com.br';
+
+-- Tornar alguém gerente
+update public.profiles set role = 'gerente'
+where email = 'gerente@suaempresa.com.br';
+
+-- Colocar um vendedor sob a supervisão de um gerente
+update public.profiles
+set manager_id = (select id from public.profiles where email = 'gerente@suaempresa.com.br')
+where email = 'vendedor@suaempresa.com.br';
+
+-- Desativar o acesso de alguém sem apagar o histórico de trabalho
+update public.profiles set active = false
+where email = 'ex-funcionario@suaempresa.com.br';
+
+-- Conferir como a equipe ficou
+select p.email, p.role, p.active, g.email as gerente
+from public.profiles p
+left join public.profiles g on g.id = p.manager_id
+order by p.role, p.email;

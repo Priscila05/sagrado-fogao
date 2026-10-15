@@ -8,10 +8,14 @@ import {
   Plus,
   Search,
   Upload,
+  UserPlus,
   Users,
   X,
 } from 'lucide-react';
 import { useData } from '../state/DataProvider';
+import { useAuth } from '../auth/AuthProvider';
+import { displayName } from '../auth/roles';
+import { DistributeDialog } from '../components/leads/DistributeDialog';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { Button } from '../components/ui/Button';
 import {
@@ -46,6 +50,8 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
 
 export function LeadsPage() {
   const { leads, stages, settings, companies, dataset } = useData();
+  const { mode, team, permissions } = useAuth();
+  const canDistribute = mode === 'equipe' && permissions.assignLeads;
   const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -61,6 +67,9 @@ export function LeadsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
   const [csvOpen, setCsvOpen] = useState(false);
+  const [ownerFilter, setOwnerFilter] = useState('');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [distributeOpen, setDistributeOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   // Deep links: /leads?novo=1 opens the form, ?focus=busca focuses the search.
@@ -93,6 +102,10 @@ export function LeadsPage() {
 
     let rows = leads.filter((lead) => {
       if (stageFilter && lead.stageId !== stageFilter) return false;
+      if (ownerFilter) {
+        const owner = lead.ownerId ?? '';
+        if (ownerFilter === 'sem-responsavel' ? owner !== '' : owner !== ownerFilter) return false;
+      }
       if (priorityFilter && lead.priority !== priorityFilter) return false;
       if (sourceFilter && lead.source !== sourceFilter) return false;
       if (segmentFilter && lead.segment !== segmentFilter) return false;
@@ -152,6 +165,7 @@ export function LeadsPage() {
     leads,
     debouncedQuery,
     stageFilter,
+    ownerFilter,
     priorityFilter,
     sourceFilter,
     segmentFilter,
@@ -162,6 +176,7 @@ export function LeadsPage() {
   ]);
 
   const activeFilterCount =
+    (ownerFilter ? 1 : 0) +
     (stageFilter ? 1 : 0) +
     (priorityFilter ? 1 : 0) +
     (sourceFilter ? 1 : 0) +
@@ -169,6 +184,7 @@ export function LeadsPage() {
     (showDuplicates ? 1 : 0);
 
   const clearFilters = () => {
+    setOwnerFilter('');
     setStageFilter('');
     setPriorityFilter('');
     setSourceFilter('');
@@ -335,6 +351,24 @@ export function LeadsPage() {
                   ))}
                 </select>
               </label>
+              {mode === 'equipe' ? (
+                <label className="flex flex-col gap-1 text-2xs font-medium text-subtle">
+                  Responsável
+                  <select
+                    value={ownerFilter}
+                    onChange={(event) => setOwnerFilter(event.target.value)}
+                    className={selectClass}
+                  >
+                    <option value="">Todos</option>
+                    <option value="sem-responsavel">Sem responsável</option>
+                    {team.map((member) => (
+                      <option key={member.id} value={member.id}>
+                        {displayName(member)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
               {duplicateGroups.length > 0 ? (
                 <Button
                   variant={showDuplicates ? 'subtle' : 'secondary'}
@@ -350,6 +384,27 @@ export function LeadsPage() {
                   Limpar
                 </Button>
               ) : null}
+            </div>
+          ) : null}
+
+          {canDistribute && selected.size > 0 ? (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-accent-soft px-3 py-2 animate-slide-up">
+              <p className="text-sm font-medium text-accent-ink">
+                {formatNumber(selected.size)} lead(s) selecionado(s)
+              </p>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
+                  Limpar seleção
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  icon={<UserPlus className="h-3.5 w-3.5" />}
+                  onClick={() => setDistributeOpen(true)}
+                >
+                  Distribuir
+                </Button>
+              </div>
             </div>
           ) : null}
 
@@ -392,8 +447,28 @@ export function LeadsPage() {
               <table className="w-full min-w-[900px] border-collapse text-left">
                 <thead>
                   <tr className="border-b border-line text-2xs uppercase tracking-[0.05em] text-subtle">
+                    {canDistribute ? (
+                      <th scope="col" className="w-9 px-3 py-2.5">
+                        <input
+                          type="checkbox"
+                          aria-label="Selecionar todos os leads filtrados"
+                          checked={filtered.length > 0 && selected.size === filtered.length}
+                          onChange={(event) =>
+                            setSelected(
+                              event.target.checked
+                                ? new Set(filtered.map((lead) => lead.id))
+                                : new Set(),
+                            )
+                          }
+                          className="h-4 w-4 cursor-pointer rounded-sm border-line-strong accent-[rgb(var(--c-accent))]"
+                        />
+                      </th>
+                    ) : null}
                     <th scope="col" className="px-4 py-2.5 font-semibold">Estabelecimento</th>
                     <th scope="col" className="px-4 py-2.5 font-semibold">Contato</th>
+                    {mode === 'equipe' ? (
+                      <th scope="col" className="px-4 py-2.5 font-semibold">Responsável</th>
+                    ) : null}
                     <th scope="col" className="px-4 py-2.5 font-semibold">Etapa</th>
                     <th scope="col" className="px-4 py-2.5 font-semibold">Prioridade</th>
                     <th scope="col" className="px-4 py-2.5 text-right font-semibold">Valor</th>
@@ -407,6 +482,24 @@ export function LeadsPage() {
                     const company = lead.companyId ? companyById.get(lead.companyId) : undefined;
                     return (
                       <tr key={lead.id} className="group transition-colors hover:bg-sunken/60">
+                        {canDistribute ? (
+                          <td className="px-3 py-2.5">
+                            <input
+                              type="checkbox"
+                              aria-label={`Selecionar ${lead.establishmentName || lead.contactName}`}
+                              checked={selected.has(lead.id)}
+                              onChange={(event) =>
+                                setSelected((current) => {
+                                  const next = new Set(current);
+                                  if (event.target.checked) next.add(lead.id);
+                                  else next.delete(lead.id);
+                                  return next;
+                                })
+                              }
+                              className="h-4 w-4 cursor-pointer rounded-sm border-line-strong accent-[rgb(var(--c-accent))]"
+                            />
+                          </td>
+                        ) : null}
                         <td className="px-4 py-2.5">
                           <Link
                             to={`/leads/${lead.id}`}
@@ -432,6 +525,22 @@ export function LeadsPage() {
                             </Link>
                           ) : null}
                         </td>
+                        {mode === 'equipe' ? (
+                          <td className="px-4 py-2.5 text-sm">
+                            {lead.ownerId ? (
+                              <span className="text-ink">
+                                {displayName(
+                                  team.find((member) => member.id === lead.ownerId) ?? {
+                                    fullName: '',
+                                    email: 'Fora da sua equipe',
+                                  },
+                                )}
+                              </span>
+                            ) : (
+                              <Badge tone="caution">Sem responsável</Badge>
+                            )}
+                          </td>
+                        ) : null}
                         <td className="px-4 py-2.5">
                           {stage ? <StageBadge name={stage.name} kind={stage.kind} /> : <Badge>Etapa removida</Badge>}
                         </td>
@@ -529,6 +638,12 @@ export function LeadsPage() {
         }}
       />
       <LeadsCsvDialog open={csvOpen} onClose={() => setCsvOpen(false)} />
+      <DistributeDialog
+        open={distributeOpen}
+        onClose={() => setDistributeOpen(false)}
+        leads={filtered.filter((lead) => selected.has(lead.id))}
+        onDistributed={() => setSelected(new Set())}
+      />
     </div>
   );
 }

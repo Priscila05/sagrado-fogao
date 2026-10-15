@@ -2,10 +2,23 @@
 
 **Nenhuma oportunidade esquecida.**
 
-CRM pessoal para organizar clientes, acompanhar oportunidades e não esquecer nenhum contato —
-com módulo de **controle financeiro** (contratos, recebimentos e despesas).
-Aplicação estática (React + TypeScript + Vite + Tailwind), sem back-end, sem login e sem
-serviços externos: todos os dados ficam no banco local do navegador (IndexedDB).
+CRM para organizar clientes, acompanhar oportunidades e não esquecer nenhum contato —
+com módulo de **controle financeiro** (contratos, recebimentos e despesas) e **versão
+multiusuário** opcional, com login individual e permissões por papel.
+Aplicação estática (React + TypeScript + Vite + Tailwind), publicada no Netlify.
+
+Funciona em **dois modos**, decididos pelas variáveis de ambiente do build:
+
+| | Modo local | Modo equipe |
+| --- | --- | --- |
+| Quando | Sem `VITE_SUPABASE_*` | Com `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` |
+| Login | Não existe | Individual, pelo Supabase Auth |
+| Dados | IndexedDB, só neste navegador | Banco compartilhado no Supabase, com RLS |
+| Papéis | Uma pessoa, dona de tudo | Administrador, gerente e vendedor |
+| Financeiro | Disponível | Exclusivo do administrador |
+
+O modo local é exatamente o ALINHO de sempre: ninguém que já usa precisa mudar nada, e os
+dados do navegador continuam intactos mesmo depois que a versão multiusuário é publicada.
 
 ---
 
@@ -36,6 +49,37 @@ serviços externos: todos os dados ficam no banco local do navegador (IndexedDB)
 | `npm run preview` | Serve o build de produção localmente. |
 | `npm test` | Testes automatizados (Vitest). |
 | `npm run package` | Gera `dist-zip/alinho-netlify.zip` e valida o conteúdo. |
+
+Para publicar no modo equipe, crie um `.env` (modelo em `.env.example`) **antes** do build:
+o Vite grava as variáveis no pacote no momento da compilação.
+
+## Versão multiusuário (modo equipe)
+
+Toda a configuração do Supabase está em **[`supabase/README.md`](supabase/README.md)**:
+as três migrações SQL, como criar os acessos das pessoas e o que ajustar no painel.
+
+Resumo do que cada papel enxerga:
+
+| | Admin | Gerente | Vendedor |
+| --- | --- | --- | --- |
+| Leads, empresas, atividades | Tudo da empresa | Os seus e os da equipe | Apenas os seus |
+| Distribuir leads | Sim | Dentro da equipe | Não |
+| Painel de equipe | Toda a empresa | Sua equipe | Não vê |
+| Financeiro | Sim | Não | Não |
+| Etapas, origens e listas | Edita | Usa | Usa |
+| Backup | Exporta e importa | Exporta | Não |
+
+As regras valem no **banco**, não só na tela: as políticas de RLS do Supabase recusam
+qualquer leitura ou escrita fora do alcance do papel, mesmo que alguém chame a API
+diretamente. A interface apenas evita oferecer caminhos que o banco negaria.
+
+**Nunca** publique a chave `service_role`: ela ignora o RLS. O aplicativo detecta chaves de
+servidor em `VITE_SUPABASE_PUBLISHABLE_KEY`, recusa usá-las e avisa no console.
+
+Quem já usava o modo local pode levar os dados para a empresa em
+*Configurações → Enviar dados deste navegador para o Supabase* (só administrador). O envio
+usa os mesmos identificadores, então repetir atualiza em vez de duplicar, e o banco local
+não é alterado.
 
 ## Módulo financeiro
 
@@ -80,12 +124,18 @@ src/
   state/        provedor de dados da aplicação
   utils/        formatação brasileira, datas, links seguros, CSV
   design/       logotipo e identidade
+  auth/         papéis, permissões e sessão do Supabase
+  lib/          cliente do Supabase
+supabase/
+  migrations/   SQL para criar o banco da empresa, com RLS
+  README.md     passo a passo da configuração no Supabase
 ```
 
-Nenhum componente React conversa diretamente com o IndexedDB: tudo passa por
-`repositories/`. Para migrar para Supabase no futuro, basta implementar a interface
-`Repositories` (`src/repositories/types.ts`) e trocar a implementação exportada em
-`src/repositories/index.ts` — as páginas continuam iguais.
+Nenhum componente React conversa diretamente com o banco: tudo passa por `repositories/`.
+É exatamente essa camada que permitiu acrescentar o Supabase sem reescrever as telas —
+`repositories/local.ts` (IndexedDB) e `repositories/supabase.ts` cumprem a mesma interface
+(`src/repositories/types.ts`), e `src/repositories/index.ts` troca a implementação ativa
+quando a sessão muda.
 
 ## Dados, privacidade e backup
 

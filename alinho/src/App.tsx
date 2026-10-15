@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell';
 import { OverviewPage } from './pages/OverviewPage';
@@ -17,7 +18,11 @@ import { FinanceHistoryPage } from './pages/finance/FinanceHistoryPage';
 import { FinanceReportsPage } from './pages/finance/FinanceReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { TeamPage } from './pages/TeamPage';
+import { LoginPage } from './pages/LoginPage';
 import { useData } from './state/DataProvider';
+import { useAuth } from './auth/AuthProvider';
+import type { Permissions } from './auth/roles';
 import { LogoMark } from './design/Logo';
 import { Button } from './components/ui/Button';
 
@@ -31,8 +36,35 @@ function BootScreen({ message }: { message: string }) {
   );
 }
 
+/**
+ * Rota protegida: quem não tem a permissão é levado de volta à visão geral.
+ * O banco recusaria os dados de qualquer forma; isto evita uma tela quebrada.
+ */
+function Require({
+  permission,
+  children,
+}: {
+  permission: keyof Permissions;
+  children: ReactNode;
+}) {
+  const { permissions } = useAuth();
+  if (!permissions[permission]) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 export function App() {
   const { status, error, actions } = useData();
+  const auth = useAuth();
+
+  // Modo equipe: nada é exibido antes do login.
+  if (auth.mode === 'equipe') {
+    if (auth.status === 'carregando') {
+      return <BootScreen message="Verificando seu acesso…" />;
+    }
+    if (auth.status !== 'logado') {
+      return <LoginPage />;
+    }
+  }
 
   if (status === 'loading') {
     return <BootScreen message="Carregando seus dados locais…" />;
@@ -67,7 +99,22 @@ export function App() {
         <Route path="/empresas/:companyId" element={<CompanyDetailPage />} />
         <Route path="/atividades" element={<ActivitiesPage />} />
         <Route path="/relatorios" element={<ReportsPage />} />
-        <Route path="/financeiro" element={<FinanceLayout />}>
+        <Route
+          path="/equipe"
+          element={
+            <Require permission="viewTeam">
+              <TeamPage />
+            </Require>
+          }
+        />
+        <Route
+          path="/financeiro"
+          element={
+            <Require permission="viewFinance">
+              <FinanceLayout />
+            </Require>
+          }
+        >
           <Route index element={<FinanceOverviewPage />} />
           <Route path="contratos" element={<ContractsPage />} />
           <Route path="pagamentos" element={<PaymentsPage />} />

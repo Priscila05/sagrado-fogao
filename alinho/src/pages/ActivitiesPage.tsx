@@ -10,6 +10,8 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useData } from '../state/DataProvider';
+import { useAuth } from '../auth/AuthProvider';
+import { displayName } from '../auth/roles';
 import { bucketActivities } from '../services/metrics';
 import { Button } from '../components/ui/Button';
 import {
@@ -33,6 +35,7 @@ function ActivityRow({
   activity,
   leadName,
   companyName,
+  ownerName,
   onToggle,
   onEdit,
   onDelete,
@@ -40,6 +43,8 @@ function ActivityRow({
   activity: Activity;
   leadName?: string;
   companyName?: string;
+  /** Responsável, exibido apenas no modo equipe. */
+  ownerName?: string;
   onToggle: (done: boolean) => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -69,6 +74,7 @@ function ActivityRow({
         <p className="mt-0.5 text-xs text-muted">
           {ACTIVITY_TYPE_LABEL[activity.type]} · {formatDateTime(activity.dueAt)}
           {!activity.done ? ` · ${relativeDayLabel(activity.dueAt)}` : ''}
+          {ownerName ? ` · ${ownerName}` : ''}
         </p>
         {leadName || companyName ? (
           <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs">
@@ -107,6 +113,7 @@ function ActivityRow({
 
 export function ActivitiesPage() {
   const { activities, leads, companies, actions, dataset } = useData();
+  const { mode, team } = useAuth();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Activity | null>(null);
   const [toDelete, setToDelete] = useState<Activity | null>(null);
@@ -132,6 +139,11 @@ export function ActivitiesPage() {
     if (!id) return undefined;
     return companies.find((candidate) => candidate.id === id)?.name;
   };
+  const ownerName = (id: string | null) => {
+    if (mode !== 'equipe') return undefined;
+    const member = team.find((candidate) => candidate.id === id);
+    return member ? displayName(member) : 'Sem responsável';
+  };
 
   const renderList = (rows: Activity[]) => (
     <ul className="divide-y divide-line">
@@ -141,6 +153,7 @@ export function ActivitiesPage() {
           activity={activity}
           leadName={leadName(activity.leadId)}
           companyName={companyName(activity.companyId)}
+          ownerName={ownerName(activity.ownerId)}
           onToggle={(done) => void actions.setActivityDone(activity.id, done)}
           onEdit={() => {
             setEditing(activity);

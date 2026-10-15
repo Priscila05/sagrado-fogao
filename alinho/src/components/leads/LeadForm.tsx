@@ -4,12 +4,15 @@ import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { SelectInput, TextArea, TextInput } from '../ui/Field';
 import { useData } from '../../state/DataProvider';
+import { useAuth } from '../../auth/AuthProvider';
+import { displayName } from '../../auth/roles';
 import { findPossibleMatches } from '../../services/duplicates';
 import { isValidEmail, isValidPhone, parseCurrencyInput } from '../../utils/format';
 import { toDateInputValue, fromDateInputValue } from '../../utils/date';
 import { PRIORITY_LABEL, type Lead, type Priority } from '../../models/types';
 
 interface FormState {
+  ownerId: string;
   contactName: string;
   establishmentName: string;
   segment: string;
@@ -29,8 +32,9 @@ interface FormState {
   notes: string;
 }
 
-function emptyForm(stageId: string): FormState {
+function emptyForm(stageId: string, ownerId = ''): FormState {
   return {
+    ownerId,
     contactName: '',
     establishmentName: '',
     segment: '',
@@ -53,6 +57,7 @@ function emptyForm(stageId: string): FormState {
 
 function formFromLead(lead: Lead): FormState {
   return {
+    ownerId: lead.ownerId ?? '',
     contactName: lead.contactName,
     establishmentName: lead.establishmentName,
     segment: lead.segment,
@@ -87,21 +92,22 @@ export function LeadForm({
   onSaved?: (lead: Lead) => void;
 }) {
   const { stages, settings, companies, leads, actions, saving } = useData();
+  const { mode, profile, team, permissions } = useAuth();
   const fallbackStage = defaultStageId || stages[0]?.id || '';
   const [form, setForm] = useState<FormState>(() =>
-    lead ? formFromLead(lead) : emptyForm(fallbackStage),
+    lead ? formFromLead(lead) : emptyForm(fallbackStage, profile?.id ?? ''),
   );
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
   // Carrega os valores na própria renderização em que o modal abre. Com um
   // efeito, havia uma janela em que os campos já estavam na tela com o conteúdo
   // anterior e a digitação inicial podia ser sobrescrita.
-  const openKey = open ? `${lead?.id ?? 'novo'}:${fallbackStage}` : null;
+  const openKey = open ? `${lead?.id ?? 'novo'}:${fallbackStage}:${profile?.id ?? ''}` : null;
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
   if (openKey !== loadedKey) {
     setLoadedKey(openKey);
     if (open) {
-      setForm(lead ? formFromLead(lead) : emptyForm(fallbackStage));
+      setForm(lead ? formFromLead(lead) : emptyForm(fallbackStage, profile?.id ?? ''));
       setErrors({});
     }
   }
@@ -158,6 +164,8 @@ export function LeadForm({
       nextContactAt: fromDateInputValue(form.nextContactAt),
       companyId: form.companyId || null,
       notes: form.notes.trim(),
+      // No modo local não há responsáveis; o campo fica nulo.
+      ...(mode === 'equipe' ? { ownerId: form.ownerId || null } : {}),
     };
 
     const saved = lead
@@ -350,6 +358,25 @@ export function LeadForm({
             value={form.nextContactAt}
             onChange={(event) => update('nextContactAt', event.target.value)}
           />
+          {mode === 'equipe' ? (
+            <SelectInput
+              label="Responsável"
+              value={form.ownerId}
+              onChange={(event) => update('ownerId', event.target.value)}
+              options={team.map((member) => ({
+                value: member.id,
+                label: displayName(member),
+              }))}
+              placeholder="Sem responsável"
+              hint={
+                permissions.assignLeads
+                  ? 'Quem vai acompanhar este lead.'
+                  : 'Somente gerentes e administradores redistribuem leads.'
+              }
+              disabled={!permissions.assignLeads && Boolean(lead)}
+              className="sm:col-span-2"
+            />
+          ) : null}
           <SelectInput
             label="Empresa vinculada"
             value={form.companyId}
