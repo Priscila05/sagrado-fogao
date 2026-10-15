@@ -49,9 +49,16 @@ dados do navegador continuam intactos mesmo depois que a versão multiusuário �
 | `npm run preview` | Serve o build de produção localmente. |
 | `npm test` | Testes automatizados (Vitest). |
 | `npm run package` | Gera `dist-zip/alinho-netlify.zip` e valida o conteúdo. |
+| `npm run package:equipe` | O mesmo, mas recusa o pacote se o build não for do modo equipe. |
+| `npm run verificar:supabase` | Confere a conexão com o Supabase só com leituras. |
+| `npm run test:e2e` | Baterias de navegador (precisa do build servido; veja *Testes*). |
 
 Para publicar no modo equipe, crie um `.env` (modelo em `.env.example`) **antes** do build:
-o Vite grava as variáveis no pacote no momento da compilação.
+o Vite grava as variáveis no pacote no momento da compilação. O pacote traz um
+`build-info.json` dizendo em que modo foi compilado (e o host do Supabase, nunca a chave);
+`npm run package:equipe` confere isso no próprio JavaScript publicado antes de gerar o ZIP.
+O passo a passo da publicação em equipe, com a conferência de papéis no ar, está em
+**[`PUBLICACAO.md`](PUBLICACAO.md)**.
 
 ## Versão multiusuário (modo equipe)
 
@@ -174,10 +181,43 @@ fictícios, nunca se mistura aos dados reais e nunca entra nos backups.
 
 ```bash
 npm test                       # testes unitários e de integração (Vitest + fake-indexeddb)
-
-npm run build && npm run preview   # em um terminal
-npm run test:e2e                   # em outro: testes de navegador (Playwright)
 ```
+
+As baterias de navegador precisam de **dois builds servidos ao mesmo tempo**: as de `01` a
+`09` rodam contra o modo local na porta 4280, e a `10` contra um build em modo equipe na
+porta 4281, apontando para um projeto que não existe (é assim que o portão de login e as
+mensagens de erro são testados sem depender de um Supabase real).
+
+```bash
+# 1. Modo local em dist/, servido na 4280.
+#    Se você tem um .env de modo equipe, tire-o de vista antes de compilar.
+npm run build
+npx vite preview --port 4280 --strictPort &
+
+# 2. Modo equipe de mentira em dist-teste-equipe/, servido na 4281.
+#    A chave precisa ser exatamente esta: a bateria 10 confere se o build a embutiu.
+VITE_SUPABASE_URL=https://projeto-de-teste.supabase.co \
+  VITE_SUPABASE_PUBLISHABLE_KEY=chave-publicavel-de-teste-anon \
+  npx vite build --outDir dist-teste-equipe
+npx vite preview --outDir dist-teste-equipe --port 4281 --strictPort &
+
+# 3. As baterias, em sequência.
+npm run test:e2e
+```
+
+Confira o que cada porta está servindo antes de começar — `vite preview --strictPort`
+recusa a porta se já houver um servidor nela, e um servidor esquecido de outra rodada
+serve o build errado em silêncio:
+
+```bash
+curl -s localhost:4280/build-info.json   # deve dizer "mode": "local"
+curl -s localhost:4281/build-info.json   # deve dizer "mode": "equipe"
+```
+
+Se a 4280 estiver servindo um build em modo equipe, as baterias `01` a `09` encontram a
+tela de login em vez do aplicativo e falham em bloco — não é defeito do aplicativo.
+Apague também `e2e/.artifacts/profile` quando quiser começar de um navegador limpo: as
+baterias partem de um perfil sem dados.
 
 As baterias compartilham **um único perfil do Chromium** (`e2e/.artifacts/profile`) de
 propósito: é assim que a persistência "fechar e reabrir o aplicativo" é testada de verdade.

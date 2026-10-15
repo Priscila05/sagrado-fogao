@@ -38,6 +38,51 @@ if (exigeEquipe && info.mode !== 'equipe') {
   process.exit(1);
 }
 
+/**
+ * `build-info.json` é só uma declaração ao lado do pacote. Antes de empacotar,
+ * confere no próprio JavaScript publicado: (1) que o host do Supabase declarado
+ * está realmente embutido, quando se pede modo equipe, e (2) que nenhuma
+ * credencial de servidor vazou para o pacote, em qualquer modo.
+ */
+const jsFiles = fs
+  .readdirSync(path.join(dist, 'assets'), { withFileTypes: true })
+  .filter((entry) => entry.isFile() && entry.name.endsWith('.js'))
+  .map((entry) => path.join(dist, 'assets', entry.name));
+const jsSources = jsFiles.map((file) => fs.readFileSync(file, 'utf8'));
+
+if (exigeEquipe) {
+  if (!info.supabaseHost) {
+    console.error('build-info.json diz modo equipe mas não registrou o host do Supabase.');
+    process.exit(1);
+  }
+  if (!jsSources.some((source) => source.includes(info.supabaseHost))) {
+    console.error(
+      `O pacote não contém o endereço ${info.supabaseHost}. ` +
+        'O build não embutiu as variáveis do Supabase — rode "npm run build" de novo.',
+    );
+    process.exit(1);
+  }
+}
+
+const chaveDeServidor = /sb_secret_[A-Za-z0-9_-]{10,}/;
+for (const [i, source] of jsSources.entries()) {
+  if (chaveDeServidor.test(source)) {
+    console.error(`Credencial de servidor encontrada em ${path.relative(root, jsFiles[i])}.`);
+    process.exit(1);
+  }
+  for (const token of source.match(/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}/g) ?? []) {
+    try {
+      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString('utf8'));
+      if (payload.role === 'service_role') {
+        console.error(`Chave service_role encontrada em ${path.relative(root, jsFiles[i])}.`);
+        process.exit(1);
+      }
+    } catch {
+      // não é um JWT legível; segue
+    }
+  }
+}
+
 fs.mkdirSync(outDir, { recursive: true });
 fs.rmSync(zipPath, { force: true });
 

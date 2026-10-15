@@ -95,6 +95,10 @@ chave publicável funcionam, que o login por e-mail está ligado, que o cadastro
 público está desligado e que, sem login, o banco não entrega nem aceita dados.
 Nada é gravado e nenhuma senha é necessária.
 
+Rode-o de uma máquina com acesso à internet ao endereço do seu projeto. Em um
+ambiente de rede fechada a saída é `TypeError: fetch failed` — isso é a rede
+barrando a conexão, não um problema do projeto nem da chave.
+
 ## 6. Variáveis do build
 
 Em *Project Settings → API*, copie:

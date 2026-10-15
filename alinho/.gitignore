@@ -8,3 +8,4 @@ e2e/.artifacts
 .env.local
 .env.*.local
 dist-teste-equipe
+dist-teste-local
