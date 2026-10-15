@@ -509,6 +509,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (!lead) return null;
         const company = buildCompany(
           {
+            // A empresa nasce com o mesmo responsável do lead que a originou.
+            ownerId: lead.ownerId ?? profile?.id ?? null,
             name: lead.establishmentName || lead.contactName,
             segment: lead.segment,
             phone: lead.phone,
@@ -542,7 +544,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         toast.success('Empresa criada e vinculada');
         return savedCompany;
       }),
-    [run, logInteraction, toast],
+    [run, logInteraction, toast, profile],
   );
 
   const convertLeadToClient = useCallback<DataActions['convertLeadToClient']>(
@@ -566,6 +568,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         } else {
           const company = buildCompany(
             {
+              ownerId: lead.ownerId ?? profile?.id ?? null,
               name: lead.establishmentName || lead.contactName,
               segment: lead.segment,
               phone: lead.phone,
@@ -603,7 +606,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       });
       return result ?? false;
     },
-    [run, logInteraction, toast],
+    [run, logInteraction, toast, profile],
   );
 
   /* ------------------------------------------------------------- activities --- */

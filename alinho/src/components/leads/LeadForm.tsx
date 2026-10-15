@@ -371,9 +371,11 @@ export function LeadForm({
               hint={
                 permissions.assignLeads
                   ? 'Quem vai acompanhar este lead.'
-                  : 'Somente gerentes e administradores redistribuem leads.'
+                  : 'Leads que você cadastra ficam sob sua responsabilidade. A redistribuição é feita por gerentes e administradores.'
               }
-              disabled={!permissions.assignLeads && Boolean(lead)}
+              // O banco força o responsável para quem cadastra quando a pessoa
+              // não tem permissão de distribuir; o campo acompanha essa regra.
+              disabled={!permissions.assignLeads}
               className="sm:col-span-2"
             />
           ) : null}

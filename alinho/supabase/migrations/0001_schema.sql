@@ -2,6 +2,13 @@
 -- ALINHO — versão multiusuário
 -- Migração 1/3: esquema
 --
+-- Revisada após auditoria de segurança. Pontos de atenção tratados aqui:
+--   * toda referência entre tabelas carrega a organização junto (chaves
+--     estrangeiras compostas), o que torna impossível ligar registros de
+--     organizações diferentes — mesmo via API direta;
+--   * `org_id` nunca pode ser anulado por uma exclusão em cascata: usamos
+--     ON DELETE SET NULL restrito à coluna do vínculo (PostgreSQL 15+).
+--
 -- Esta migração é ADITIVA: só cria objetos novos, no schema `public`, e não
 -- altera nem remove nada existente. Rode no SQL Editor do Supabase.
 -- ============================================================================
@@ -68,18 +75,26 @@ create table if not exists public.profiles (
   email text not null,
   full_name text not null default '',
   role public.user_role not null default 'vendedor',
-  -- Gerente responsável por este vendedor. Define o time que o gerente supervisiona.
-  manager_id uuid references public.profiles (id) on delete set null,
+  -- Gerente responsável por este vendedor. Define o time que ele supervisiona.
+  manager_id uuid,
   active boolean not null default true,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  -- Alvo das chaves compostas: garante que um vínculo sempre aponte para
+  -- alguém da MESMA organização.
+  constraint profiles_id_org_key unique (id, org_id),
+  constraint profiles_manager_same_org
+    foreign key (manager_id, org_id) references public.profiles (id, org_id)
+    on delete set null (manager_id),
+  constraint profiles_manager_not_self check (manager_id is null or manager_id <> id)
 );
 
 create index if not exists profiles_org_idx on public.profiles (org_id);
 create index if not exists profiles_manager_idx on public.profiles (manager_id);
 
-comment on column public.profiles.manager_id is
-  'Gerente deste usuário. Um gerente enxerga a si mesmo e a quem aponta para ele.';
+comment on column public.profiles.role is
+  'Definido apenas pelo gatilho de criação (lista de administradores) ou pelas '
+  'funções admin_set_member_*. Nunca por dados enviados pelo cliente.';
 
 -- --------------------------------------------------------- configurações ---
 
@@ -100,7 +115,7 @@ create table if not exists public.org_settings (
 create table if not exists public.companies (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.organizations (id) on delete cascade,
-  owner_id uuid references public.profiles (id) on delete set null,
+  owner_id uuid,
   name text not null default '',
   segment text not null default '',
   phone text not null default '',
@@ -114,7 +129,11 @@ create table if not exists public.companies (
   notes text not null default '',
   status public.company_status not null default 'prospect',
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint companies_id_org_key unique (id, org_id),
+  constraint companies_owner_same_org
+    foreign key (owner_id, org_id) references public.profiles (id, org_id)
+    on delete set null (owner_id)
 );
 
 create index if not exists companies_org_idx on public.companies (org_id);
@@ -126,8 +145,8 @@ create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.organizations (id) on delete cascade,
   -- Responsável pelo lead. É a base da distribuição e das permissões.
-  owner_id uuid references public.profiles (id) on delete set null,
-  company_id uuid references public.companies (id) on delete set null,
+  owner_id uuid,
+  company_id uuid,
   contact_name text not null default '',
   establishment_name text not null default '',
   segment text not null default '',
@@ -148,7 +167,14 @@ create table if not exists public.leads (
   won_at timestamptz,
   lost_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint leads_id_org_key unique (id, org_id),
+  constraint leads_owner_same_org
+    foreign key (owner_id, org_id) references public.profiles (id, org_id)
+    on delete set null (owner_id),
+  constraint leads_company_same_org
+    foreign key (company_id, org_id) references public.companies (id, org_id)
+    on delete set null (company_id)
 );
 
 create index if not exists leads_org_idx on public.leads (org_id);
@@ -161,9 +187,9 @@ create index if not exists leads_stage_idx on public.leads (stage_id);
 create table if not exists public.activities (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.organizations (id) on delete cascade,
-  owner_id uuid references public.profiles (id) on delete set null,
-  lead_id uuid references public.leads (id) on delete cascade,
-  company_id uuid references public.companies (id) on delete set null,
+  owner_id uuid,
+  lead_id uuid,
+  company_id uuid,
   title text not null default '',
   type public.activity_type not null default 'tarefa',
   due_at timestamptz not null default now(),
@@ -172,7 +198,17 @@ create table if not exists public.activities (
   done boolean not null default false,
   done_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint activities_id_org_key unique (id, org_id),
+  constraint activities_owner_same_org
+    foreign key (owner_id, org_id) references public.profiles (id, org_id)
+    on delete set null (owner_id),
+  constraint activities_lead_same_org
+    foreign key (lead_id, org_id) references public.leads (id, org_id)
+    on delete cascade,
+  constraint activities_company_same_org
+    foreign key (company_id, org_id) references public.companies (id, org_id)
+    on delete set null (company_id)
 );
 
 create index if not exists activities_org_idx on public.activities (org_id);
@@ -185,15 +221,27 @@ create index if not exists activities_due_idx on public.activities (due_at);
 create table if not exists public.interactions (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.organizations (id) on delete cascade,
-  -- Quem registrou. O histórico não é editável depois: é a memória do lead.
-  author_id uuid references public.profiles (id) on delete set null,
-  lead_id uuid references public.leads (id) on delete cascade,
-  company_id uuid references public.companies (id) on delete set null,
+  -- Quem registrou. Preenchido pelo banco, nunca pelo cliente.
+  author_id uuid,
+  lead_id uuid,
+  company_id uuid,
   type public.interaction_type not null default 'observacao',
   description text not null default '',
   occurred_at timestamptz not null default now(),
   automatic boolean not null default false,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  constraint interactions_id_org_key unique (id, org_id),
+  constraint interactions_author_same_org
+    foreign key (author_id, org_id) references public.profiles (id, org_id)
+    on delete set null (author_id),
+  constraint interactions_lead_same_org
+    foreign key (lead_id, org_id) references public.leads (id, org_id)
+    on delete cascade,
+  constraint interactions_company_same_org
+    foreign key (company_id, org_id) references public.companies (id, org_id)
+    on delete set null (company_id),
+  -- Todo registro precisa estar ancorado em algo visível.
+  constraint interactions_has_anchor check (lead_id is not null or company_id is not null)
 );
 
 create index if not exists interactions_org_idx on public.interactions (org_id);
@@ -205,8 +253,8 @@ create index if not exists interactions_occurred_idx on public.interactions (occ
 create table if not exists public.contracts (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.organizations (id) on delete cascade,
-  company_id uuid references public.companies (id) on delete set null,
-  lead_id uuid references public.leads (id) on delete set null,
+  company_id uuid,
+  lead_id uuid,
   client_name text not null default '',
   project_name text not null default '',
   total_value numeric(14, 2) not null default 0,
@@ -218,7 +266,14 @@ create table if not exists public.contracts (
   first_due_at timestamptz not null default now(),
   payment_method text not null default '',
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint contracts_id_org_key unique (id, org_id),
+  constraint contracts_company_same_org
+    foreign key (company_id, org_id) references public.companies (id, org_id)
+    on delete set null (company_id),
+  constraint contracts_lead_same_org
+    foreign key (lead_id, org_id) references public.leads (id, org_id)
+    on delete set null (lead_id)
 );
 
 create index if not exists contracts_org_idx on public.contracts (org_id);
@@ -226,8 +281,8 @@ create index if not exists contracts_org_idx on public.contracts (org_id);
 create table if not exists public.payments (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.organizations (id) on delete cascade,
-  contract_id uuid references public.contracts (id) on delete cascade,
-  company_id uuid references public.companies (id) on delete set null,
+  contract_id uuid,
+  company_id uuid,
   kind public.payment_kind not null default 'parcela',
   sequence integer not null default 0,
   label text not null default '',
@@ -239,7 +294,14 @@ create table if not exists public.payments (
   status public.payment_status not null default 'pendente',
   notes text not null default '',
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint payments_id_org_key unique (id, org_id),
+  constraint payments_contract_same_org
+    foreign key (contract_id, org_id) references public.contracts (id, org_id)
+    on delete cascade,
+  constraint payments_company_same_org
+    foreign key (company_id, org_id) references public.companies (id, org_id)
+    on delete set null (company_id)
 );
 
 create index if not exists payments_org_idx on public.payments (org_id);
@@ -255,7 +317,7 @@ create unique index if not exists payments_contract_sequence_key
 create table if not exists public.expenses (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.organizations (id) on delete cascade,
-  contract_id uuid references public.contracts (id) on delete set null,
+  contract_id uuid,
   description text not null default '',
   category text not null default '',
   amount numeric(14, 2) not null default 0,
@@ -264,7 +326,11 @@ create table if not exists public.expenses (
   paid_at timestamptz,
   notes text not null default '',
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint expenses_id_org_key unique (id, org_id),
+  constraint expenses_contract_same_org
+    foreign key (contract_id, org_id) references public.contracts (id, org_id)
+    on delete set null (contract_id)
 );
 
 create index if not exists expenses_org_idx on public.expenses (org_id);
@@ -275,6 +341,7 @@ create index if not exists expenses_contract_idx on public.expenses (contract_id
 create or replace function public.touch_updated_at()
 returns trigger
 language plpgsql
+set search_path = public, pg_temp
 as $$
 begin
   new.updated_at = now();
@@ -295,3 +362,6 @@ begin
        for each row execute function public.touch_updated_at()', t);
   end loop;
 end $$;
+
+-- Funções utilitárias não são endpoints: ninguém as chama pela API.
+revoke all on function public.touch_updated_at() from public;

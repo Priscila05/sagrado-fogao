@@ -1,0 +1,47 @@
+-- ============================================================================
+-- Operações administrativas (NÃO é migração automática).
+--
+-- Rode no SQL Editor do Supabase, que exige ser dono do projeto. É de
+-- propósito: estas operações não existem na API do aplicativo.
+-- ============================================================================
+
+-- ------------------------------------------------- 1) PRIMEIRO ADMINISTRADOR
+
+-- Passo 1: autorize o e-mail ANTES de criar a conta.
+insert into public.admin_bootstrap_allowlist (email, note)
+values ('voce@suaempresa.com.br', 'Proprietária do ALINHO')
+on conflict (email) do nothing;
+
+-- Passo 2: crie a conta em Authentication → Users → Add user, com esse e-mail.
+--          O perfil nasce com papel admin.
+
+-- Conferir:
+-- select email, role, active from public.profiles order by role;
+
+-- Se a conta já tinha sido criada ANTES de autorizar o e-mail, promova-a:
+-- update public.profiles set role = 'admin'
+-- where lower(email) = lower('voce@suaempresa.com.br');
+
+-- --------------------------------------- 2) PAPÉIS E EQUIPES NO DIA A DIA
+
+-- Prefira a tela "Equipe" dentro do ALINHO: ela usa funções que protegem
+-- invariantes (não deixar a empresa sem admin, impedir ciclos de supervisão).
+-- Os comandos abaixo são a saída de emergência, caso você perca o acesso.
+
+-- update public.profiles set role = 'gerente' where email = 'gerente@suaempresa.com.br';
+-- update public.profiles set manager_id = (select id from public.profiles where email = 'gerente@suaempresa.com.br')
+--   where email = 'vendedor@suaempresa.com.br';
+-- update public.profiles set active = false where email = 'ex-funcionario@suaempresa.com.br';
+
+-- ------------------------------------------------------ 3) CONFERIR A EQUIPE
+
+-- select p.email, p.role, p.active, g.email as supervisor
+-- from public.profiles p
+-- left join public.profiles g on g.id = p.manager_id
+-- order by p.role, p.email;
+
+-- ---------------------------------------------- 4) LIMPAR A LISTA DE ADMINS
+
+-- A lista só vale no momento da criação da conta. Depois que o administrador
+-- existe, você pode esvaziá-la para reduzir a superfície de ataque:
+-- delete from public.admin_bootstrap_allowlist;

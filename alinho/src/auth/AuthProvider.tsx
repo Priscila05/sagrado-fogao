@@ -248,20 +248,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [refreshTeam],
   );
 
+  /**
+   * Papel, supervisão e situação NÃO são alterados por UPDATE direto: o banco
+   * nega a permissão nessas colunas justamente para impedir escalonamento de
+   * privilégio. As mudanças passam por funções administrativas que conferem
+   * quem chamou e protegem invariantes (não deixar a empresa sem admin,
+   * impedir ciclos de supervisão).
+   */
   const updateMember = useCallback<AuthContextValue['updateMember']>(
     async (id, patch) => {
       const client = getSupabase();
       if (!client) return false;
-      const payload: Record<string, unknown> = {};
-      if (patch.role !== undefined) payload.role = patch.role;
-      if (patch.managerId !== undefined) payload.manager_id = patch.managerId;
-      if (patch.active !== undefined) payload.active = patch.active;
-      if (Object.keys(payload).length === 0) return true;
 
-      const { error: updateError } = await client.from('profiles').update(payload).eq('id', id);
-      if (updateError) {
-        setError(describeError(updateError));
-        return false;
+      const calls: { fn: string; args: Record<string, unknown> }[] = [];
+      if (patch.role !== undefined) {
+        calls.push({ fn: 'admin_set_member_role', args: { target_id: id, new_role: patch.role } });
+      }
+      if (patch.managerId !== undefined) {
+        calls.push({
+          fn: 'admin_set_member_manager',
+          args: { target_id: id, new_manager_id: patch.managerId },
+        });
+      }
+      if (patch.active !== undefined) {
+        calls.push({
+          fn: 'admin_set_member_active',
+          args: { target_id: id, new_active: patch.active },
+        });
+      }
+      if (calls.length === 0) return true;
+
+      for (const call of calls) {
+        const { error: rpcError } = await client.rpc(call.fn, call.args);
+        if (rpcError) {
+          // A mensagem vem do próprio banco e já é explicativa.
+          setError(rpcError.message || describeError(rpcError));
+          await refreshTeam();
+          return false;
+        }
       }
       await refreshTeam();
       return true;

@@ -58,7 +58,7 @@ describe('migrações do Supabase', () => {
   });
 
   it('amarra todas as políticas do CRM à organização do usuário', () => {
-    for (const table of ['companies', 'leads', 'activities']) {
+    for (const table of ['companies', 'leads']) {
       for (const action of ['select', 'insert', 'update', 'delete']) {
         expect(rls).toContain(`create policy ${table}_${action} on public.${table}`);
       }
@@ -71,9 +71,18 @@ describe('migrações do Supabase', () => {
     }
   });
 
-  it('não expõe nenhuma tabela ao papel anônimo', () => {
+  it('não expõe nenhuma tabela nem função ao papel anônimo', () => {
     expect(rls).toContain('revoke all on all tables in schema public from anon');
+    expect(rls).toContain('revoke all on all sequences in schema public from anon');
     expect(rls).not.toMatch(/to anon/);
+    // funções auxiliares também são retiradas de public/anon antes do grant
+    expect(squeeze(rls)).toContain('from public, anon;');
+  });
+
+  it('força o RLS inclusive para o dono das tabelas', () => {
+    for (const table of ['profiles', 'leads', 'companies', 'interactions', 'contracts']) {
+      expect(squeeze(rls)).toContain(`alter table public.${table} force row level security`);
+    }
   });
 
   it('define as funções de permissão como security definer e estáveis', () => {
@@ -87,10 +96,94 @@ describe('migrações do Supabase', () => {
     }
   });
 
-  it('cria o perfil automaticamente e faz do primeiro usuário um administrador', () => {
+  it('não deixa o papel vir dos metadados do cadastro', () => {
+    // A correção central da auditoria: metadados são controlados por quem se
+    // inscreve e não podem influenciar o papel.
     expect(bootstrap).toContain('create trigger on_auth_user_created');
-    expect(bootstrap).toContain("v_role := 'admin'");
-    expect(bootstrap).toContain("else\n    v_role := 'vendedor';");
+    expect(bootstrap).not.toMatch(/raw_user_meta_data\s*->>\s*'role'/);
+    expect(bootstrap).not.toContain("v_meta_role");
+    // o único caminho para admin é a lista do proprietário
+    expect(bootstrap).toContain('admin_bootstrap_allowlist');
+    expect(bootstrap).toMatch(/v_role := 'admin'/);
+  });
+
+  it('não concede admin por ordem de cadastro', () => {
+    expect(bootstrap).not.toContain('v_is_first');
+    expect(bootstrap).not.toMatch(/not exists \(select 1 from public\.profiles where org_id = v_org\)/);
+  });
+
+  it('mantém a lista de administradores inacessível pela API', () => {
+    expect(bootstrap).toContain('alter table public.admin_bootstrap_allowlist enable row level security');
+    expect(bootstrap).toContain('force row level security');
+    expect(bootstrap).toContain('revoke all on public.admin_bootstrap_allowlist from anon, authenticated');
+    // RLS ligado e nenhuma política = nega tudo
+    expect(bootstrap).not.toMatch(/create policy \w+ on public\.admin_bootstrap_allowlist/);
+  });
+
+  it('bloqueia a alteração de papel, organização, supervisor e situação por UPDATE', () => {
+    expect(squeeze(rls)).toContain('revoke update on public.profiles from authenticated');
+    expect(squeeze(rls)).toContain('grant update (full_name) on public.profiles to authenticated');
+    expect(squeeze(rls)).toContain('revoke insert, delete on public.profiles from authenticated');
+    // as mudanças passam por funções que conferem quem chamou
+    for (const fn of [
+      'admin_set_member_role',
+      'admin_set_member_manager',
+      'admin_set_member_active',
+    ]) {
+      const start = rls.indexOf(`create or replace function public.${fn}`);
+      expect(start).toBeGreaterThan(-1);
+      const block = rls.slice(start, start + 2000);
+      expect(block).toContain('security definer');
+      expect(block).toContain('public.app_is_admin()');
+    }
+  });
+
+  it('protege registros sem responsável e a redistribuição', () => {
+    const start = rls.indexOf('create or replace function public.app_can_access');
+    const block = rls.slice(start, start + 800);
+    // registro sem dono fica com admin e gerente, nunca com todo mundo
+    expect(block).toContain('when owner is null then public.app_is_manager()');
+    expect(block).not.toMatch(/owner is null\s*$/m);
+    // a troca de responsável é comparada com a linha antiga, no gatilho
+    expect(rls).toContain('new.owner_id is distinct from old.owner_id');
+    expect(rls).toContain('Somente gerentes e administradores redistribuem registros');
+  });
+
+  it('exige permissão sobre o lead ou a empresa no histórico', () => {
+    for (const action of ['select', 'insert', 'delete']) {
+      const start = rls.indexOf(`create policy interactions_${action}`);
+      expect(start).toBeGreaterThan(-1);
+      const block = rls.slice(start, rls.indexOf(';', start) + 1);
+      expect(block).toMatch(/app_can_access_lead|app_can_access_company|app_is_admin/);
+    }
+    // histórico não é editável e a autoria é carimbada pelo banco
+    expect(squeeze(rls)).toContain('revoke update on public.interactions from authenticated');
+    expect(rls).toContain('new.author_id := auth.uid()');
+    expect(rls).not.toMatch(/create policy interactions_update/);
+  });
+
+  it('amarra as referências à mesma organização', () => {
+    for (const constraint of [
+      'leads_owner_same_org',
+      'leads_company_same_org',
+      'activities_lead_same_org',
+      'interactions_lead_same_org',
+      'contracts_company_same_org',
+      'payments_contract_same_org',
+      'expenses_contract_same_org',
+      'profiles_manager_same_org',
+    ]) {
+      expect(schema).toContain(constraint);
+    }
+    // e a organização de um registro não muda depois de criada
+    expect(rls).toContain('A organização de um registro não pode ser alterada');
+  });
+
+  it('impede que gatilhos sejam chamados como se fossem endpoints', () => {
+    for (const fn of ['guard_owned_record', 'guard_interaction', 'guard_org_record']) {
+      expect(squeeze(rls)).toContain(`revoke all on function public.${fn}() from public, anon, authenticated`);
+    }
+    expect(squeeze(bootstrap)).toContain('revoke all on function public.handle_new_user() from public, anon, authenticated');
   });
 
   it('não contém comandos destrutivos', () => {
