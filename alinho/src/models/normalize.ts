@@ -12,6 +12,15 @@ import {
   type Stage,
   type StageKind,
 } from './types';
+import type {
+  Contract,
+  ContractStatus,
+  Expense,
+  ExpenseStatus,
+  Payment,
+  PaymentKind,
+  PaymentStatus,
+} from './finance';
 import { createDefaultSettings, DEFAULT_STAGES } from './defaults';
 import { createId, slugify } from '../utils/id';
 
@@ -212,6 +221,97 @@ export function normalizeInteraction(input: unknown, now = new Date().toISOStrin
   };
 }
 
+/* -------------------------------------------------------------- financeiro --- */
+
+const CONTRACT_STATUSES: ContractStatus[] = ['ativo', 'concluido', 'cancelado'];
+const PAYMENT_STATUSES: PaymentStatus[] = ['pendente', 'pago'];
+const PAYMENT_KINDS: PaymentKind[] = ['entrada', 'parcela', 'avulso'];
+const EXPENSE_STATUSES: ExpenseStatus[] = ['paga', 'prevista'];
+
+/** Inteiro dentro de um intervalo — usado para o número de parcelas. */
+function cleanInteger(value: unknown, fallback: number, min: number, max: number): number {
+  const parsed =
+    typeof value === 'number' ? value : typeof value === 'string' ? Number.parseInt(value, 10) : NaN;
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, Math.trunc(parsed)));
+}
+
+export function normalizeContract(input: unknown, now = new Date().toISOString()): Contract {
+  const raw = (input ?? {}) as Record<string, unknown>;
+  const createdAt = cleanIso(raw.createdAt, now);
+  const signedAt = cleanIso(raw.signedAt, createdAt);
+  const totalValue = cleanNumber(raw.totalValue);
+  return {
+    id: cleanId(raw.id),
+    companyId: cleanIdOrNull(raw.companyId),
+    leadId: cleanIdOrNull(raw.leadId),
+    clientName: cleanString(raw.clientName),
+    projectName: cleanString(raw.projectName),
+    totalValue,
+    signedAt,
+    description: cleanNotes(raw.description),
+    status: oneOf(raw.status, CONTRACT_STATUSES, 'ativo'),
+    // A entrada nunca pode superar o valor total do contrato.
+    downPayment: Math.min(cleanNumber(raw.downPayment), totalValue),
+    installments: cleanInteger(raw.installments, 1, 0, 120),
+    firstDueAt: cleanIso(raw.firstDueAt, signedAt),
+    paymentMethod: cleanString(raw.paymentMethod, 60),
+    createdAt,
+    updatedAt: cleanIso(raw.updatedAt, createdAt),
+    dataset: cleanDataset(raw.dataset),
+  };
+}
+
+export function normalizePayment(input: unknown, now = new Date().toISOString()): Payment {
+  const raw = (input ?? {}) as Record<string, unknown>;
+  const createdAt = cleanIso(raw.createdAt, now);
+  const status = oneOf(raw.status, PAYMENT_STATUSES, 'pendente');
+  const amount = cleanNumber(raw.amount);
+  const paidAmount = cleanNumber(raw.paidAmount);
+  return {
+    id: cleanId(raw.id),
+    contractId: cleanIdOrNull(raw.contractId),
+    companyId: cleanIdOrNull(raw.companyId),
+    kind: oneOf(raw.kind, PAYMENT_KINDS, 'parcela'),
+    sequence: cleanInteger(raw.sequence, 0, 0, 1000),
+    label: cleanString(raw.label, 80),
+    dueAt: cleanIso(raw.dueAt, createdAt),
+    amount,
+    // Um pagamento pendente nunca carrega valor recebido: é o que impede
+    // parcelas futuras de entrarem no faturamento realizado.
+    paidAmount: status === 'pago' ? (paidAmount > 0 ? paidAmount : amount) : 0,
+    paidAt: status === 'pago' ? cleanIsoOrNull(raw.paidAt) ?? now : null,
+    method: cleanString(raw.method, 60),
+    status,
+    notes: cleanNotes(raw.notes),
+    createdAt,
+    updatedAt: cleanIso(raw.updatedAt, createdAt),
+    dataset: cleanDataset(raw.dataset),
+  };
+}
+
+export function normalizeExpense(input: unknown, now = new Date().toISOString()): Expense {
+  const raw = (input ?? {}) as Record<string, unknown>;
+  const createdAt = cleanIso(raw.createdAt, now);
+  const spentAt = cleanIso(raw.spentAt, createdAt);
+  const status = oneOf(raw.status, EXPENSE_STATUSES, 'paga');
+  return {
+    id: cleanId(raw.id),
+    description: cleanString(raw.description),
+    category: cleanString(raw.category, 80),
+    amount: cleanNumber(raw.amount),
+    spentAt,
+    contractId: cleanIdOrNull(raw.contractId),
+    status,
+    // Só despesa paga tem data de pagamento — e só ela entra no lucro.
+    paidAt: status === 'paga' ? cleanIsoOrNull(raw.paidAt) ?? spentAt : null,
+    notes: cleanNotes(raw.notes),
+    createdAt,
+    updatedAt: cleanIso(raw.updatedAt, createdAt),
+    dataset: cleanDataset(raw.dataset),
+  };
+}
+
 /* --------------------------------------------------------------- settings --- */
 
 export function normalizeStage(input: unknown, index: number): Stage {
@@ -275,12 +375,17 @@ export function normalizeSettings(input: unknown): Settings {
 
   const sources = uniqueStrings(raw.sources, 80);
   const segments = uniqueStrings(raw.segments, 80);
+  const expenseCategories = uniqueStrings(raw.expenseCategories, 80);
+  const paymentMethods = uniqueStrings(raw.paymentMethods, 80);
 
   return {
     id: 'app',
     stages,
     sources: sources.length ? sources : fallback.sources,
     segments: segments.length ? segments : fallback.segments,
+    // Backups anteriores ao módulo financeiro não trazem estas listas.
+    expenseCategories: expenseCategories.length ? expenseCategories : fallback.expenseCategories,
+    paymentMethods: paymentMethods.length ? paymentMethods : fallback.paymentMethods,
     theme: oneOf(raw.theme, ['light', 'dark', 'system'] as const, 'system'),
     lastBackupAt: cleanIsoOrNull(raw.lastBackupAt),
     activeDataset: cleanDataset(raw.activeDataset),

@@ -5,7 +5,12 @@ import { Modal } from '../ui/Modal';
 import { PanelHeader } from '../ui/primitives';
 import { useData } from '../../state/DataProvider';
 import { useToast } from '../ui/Toast';
-import { buildBackup, readBackup, type BackupPayload } from '../../services/backup';
+import {
+  buildBackup,
+  readBackup,
+  type BackupPayload,
+  type BackupReadResult,
+} from '../../services/backup';
 import { leadsToCsv } from '../../services/leadsCsv';
 import { downloadTextFile, fileStamp } from '../../utils/csv';
 import { formatDateTime, relativeDayLabel } from '../../utils/date';
@@ -17,14 +22,7 @@ interface PendingImport {
   fileName: string;
   payload: BackupPayload;
   warnings: string[];
-  summary: {
-    leads: number;
-    companies: number;
-    activities: number;
-    interactions: number;
-    exportedAt: string | null;
-    version: number;
-  };
+  summary: NonNullable<BackupReadResult['summary']>;
 }
 
 /** Full JSON backup, CSV export and validated import. */
@@ -44,6 +42,9 @@ export function BackupPanel() {
       companies: snapshot.companies.filter((row) => row.dataset === 'real'),
       activities: snapshot.activities.filter((row) => row.dataset === 'real'),
       interactions: snapshot.interactions.filter((row) => row.dataset === 'real'),
+      contracts: snapshot.contracts.filter((row) => row.dataset === 'real'),
+      payments: snapshot.payments.filter((row) => row.dataset === 'real'),
+      expenses: snapshot.expenses.filter((row) => row.dataset === 'real'),
       settings: { ...snapshot.settings, activeDataset: 'real', demoSeeded: false },
     };
     const backup = buildBackup(payload);
@@ -155,8 +156,9 @@ export function BackupPanel() {
               Backup completo (JSON)
             </p>
             <p className="mt-1 text-xs leading-relaxed text-muted">
-              Inclui leads, empresas, oportunidades, atividades, histórico, configurações e os
-              vínculos entre registros. Dados de demonstração ficam de fora.
+              Inclui leads, empresas, oportunidades, atividades, histórico, contratos,
+              pagamentos, despesas, configurações e os vínculos entre registros. Dados de
+              demonstração ficam de fora.
             </p>
             <p className="mt-2 text-xs text-subtle tnum">
               {formatNumber(counts.real.leads)} lead(s) · {formatNumber(counts.real.companies)}{' '}
@@ -261,6 +263,9 @@ export function BackupPanel() {
                 ['Empresas', pending.summary.companies],
                 ['Atividades', pending.summary.activities],
                 ['Histórico', pending.summary.interactions],
+                ['Contratos', pending.summary.contracts],
+                ['Pagamentos', pending.summary.payments],
+                ['Despesas', pending.summary.expenses],
               ].map(([label, value]) => (
                 <div key={String(label)}>
                   <dt className="text-2xs uppercase tracking-[0.05em] text-subtle">{label}</dt>

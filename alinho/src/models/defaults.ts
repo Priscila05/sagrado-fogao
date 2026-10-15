@@ -1,7 +1,11 @@
 import type { Settings, Stage } from './types';
 
 export const APP_VERSION = '1.0.0';
-export const BACKUP_VERSION = 1;
+/**
+ * Versão 1: CRM. Versão 2: acrescenta contratos, pagamentos e despesas.
+ * Arquivos da versão 1 continuam sendo importados (o financeiro entra vazio).
+ */
+export const BACKUP_VERSION = 2;
 
 export const DEFAULT_STAGES: Stage[] = [
   { id: 'novo', name: 'Novo lead', order: 0, kind: 'aberta' },
@@ -37,12 +41,34 @@ export const DEFAULT_SEGMENTS = [
   'Outro',
 ];
 
+export const DEFAULT_EXPENSE_CATEGORIES = [
+  'Ferramentas e software',
+  'Hospedagem e domínio',
+  'Serviços de terceiros',
+  'Marketing e anúncios',
+  'Equipamentos',
+  'Impostos e taxas',
+  'Deslocamento',
+  'Outros',
+];
+
+export const DEFAULT_PAYMENT_METHODS = [
+  'Pix',
+  'Transferência bancária',
+  'Boleto',
+  'Cartão de crédito',
+  'Dinheiro',
+  'Outro',
+];
+
 export function createDefaultSettings(now = new Date().toISOString()): Settings {
   return {
     id: 'app',
     stages: DEFAULT_STAGES.map((stage) => ({ ...stage })),
     sources: [...DEFAULT_SOURCES],
     segments: [...DEFAULT_SEGMENTS],
+    expenseCategories: [...DEFAULT_EXPENSE_CATEGORIES],
+    paymentMethods: [...DEFAULT_PAYMENT_METHODS],
     theme: 'system',
     lastBackupAt: null,
     activeDataset: 'real',

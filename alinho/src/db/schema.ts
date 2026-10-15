@@ -4,9 +4,20 @@ export const DB_NAME = 'alinho';
  * Local database version. Bump this and add a migration step in `migrate`
  * whenever stores or indexes change.
  */
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
-export type StoreName = 'leads' | 'companies' | 'activities' | 'interactions' | 'settings';
+export type StoreName =
+  | 'leads'
+  | 'companies'
+  | 'activities'
+  | 'interactions'
+  | 'contracts'
+  | 'payments'
+  | 'expenses'
+  | 'settings';
+
+/** Lojas acrescentadas na versão 2 (módulo financeiro). */
+const V2_STORES: StoreName[] = ['contracts', 'payments', 'expenses'];
 
 interface IndexDefinition {
   name: string;
@@ -59,6 +70,37 @@ export const STORES: StoreDefinition[] = [
       { name: 'by_occurred', keyPath: 'occurredAt' },
     ],
   },
+  {
+    name: 'contracts',
+    keyPath: 'id',
+    indexes: [
+      { name: 'by_dataset', keyPath: 'dataset' },
+      { name: 'by_company', keyPath: 'companyId' },
+      { name: 'by_status', keyPath: 'status' },
+      { name: 'by_signed', keyPath: 'signedAt' },
+    ],
+  },
+  {
+    name: 'payments',
+    keyPath: 'id',
+    indexes: [
+      { name: 'by_dataset', keyPath: 'dataset' },
+      { name: 'by_contract', keyPath: 'contractId' },
+      { name: 'by_company', keyPath: 'companyId' },
+      { name: 'by_due', keyPath: 'dueAt' },
+      { name: 'by_status', keyPath: 'status' },
+    ],
+  },
+  {
+    name: 'expenses',
+    keyPath: 'id',
+    indexes: [
+      { name: 'by_dataset', keyPath: 'dataset' },
+      { name: 'by_contract', keyPath: 'contractId' },
+      { name: 'by_category', keyPath: 'category' },
+      { name: 'by_spent', keyPath: 'spentAt' },
+    ],
+  },
   { name: 'settings', keyPath: 'id', indexes: [] },
 ];
 
@@ -67,16 +109,24 @@ export const STORES: StoreDefinition[] = [
  * Steps must be additive: a user may upgrade from any older version.
  */
 export function migrate(db: IDBDatabase, oldVersion: number): void {
-  if (oldVersion < 1) {
+  const create = (names: StoreName[]) => {
     for (const store of STORES) {
-      const objectStore = db.objectStoreNames.contains(store.name)
-        ? null
-        : db.createObjectStore(store.name, { keyPath: store.keyPath });
-      if (!objectStore) continue;
+      if (!names.includes(store.name)) continue;
+      if (db.objectStoreNames.contains(store.name)) continue;
+      const objectStore = db.createObjectStore(store.name, { keyPath: store.keyPath });
       for (const index of store.indexes) {
         objectStore.createIndex(index.name, index.keyPath, { unique: false });
       }
     }
+  };
+
+  if (oldVersion < 1) {
+    // Instalação nova (ou anterior a qualquer versão): cria o CRM.
+    create(['leads', 'companies', 'activities', 'interactions', 'settings']);
   }
-  // Future versions: `if (oldVersion < 2) { ... }`
+  if (oldVersion < 2) {
+    // Módulo financeiro: só acrescenta lojas, nenhum dado existente é tocado.
+    create(V2_STORES);
+  }
+  // Versões futuras: `if (oldVersion < 3) { ... }`
 }

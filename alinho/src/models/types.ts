@@ -6,6 +6,8 @@
  * ever being mixed into counts, reports or backups.
  */
 
+import type { Contract, Expense, Payment } from './finance';
+
 export type ISODate = string;
 
 /** Real user data vs. clearly-labelled demonstration data. */
@@ -129,6 +131,10 @@ export interface Settings {
   stages: Stage[];
   sources: string[];
   segments: string[];
+  /** Categorias oferecidas no cadastro de despesas. */
+  expenseCategories: string[];
+  /** Formas de pagamento oferecidas em contratos e parcelas. */
+  paymentMethods: string[];
   theme: 'light' | 'dark' | 'system';
   lastBackupAt: ISODate | null;
   /** Which dataset the interface is currently showing. */
@@ -138,7 +144,14 @@ export interface Settings {
   updatedAt: ISODate;
 }
 
-export type EntityName = 'leads' | 'companies' | 'activities' | 'interactions';
+export type EntityName =
+  | 'leads'
+  | 'companies'
+  | 'activities'
+  | 'interactions'
+  | 'contracts'
+  | 'payments'
+  | 'expenses';
 
 export interface BackupFile {
   format: 'alinho-backup';
@@ -151,6 +164,10 @@ export interface BackupFile {
     companies: Company[];
     activities: Activity[];
     interactions: Interaction[];
+    /** Presentes a partir da versão 2 do formato. */
+    contracts: Contract[];
+    payments: Payment[];
+    expenses: Expense[];
     settings: Settings;
   };
 }

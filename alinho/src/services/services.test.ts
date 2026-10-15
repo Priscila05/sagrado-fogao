@@ -41,6 +41,9 @@ describe('backup', () => {
       companies: [],
       activities: [],
       interactions: [],
+      contracts: [],
+      payments: [],
+      expenses: [],
       settings,
     });
     const result = readBackup(JSON.stringify(backup));
@@ -246,6 +249,27 @@ describe('etapas e demonstração', () => {
     expect(demo.companies.every((row) => row.name.includes('(demo)'))).toBe(true);
     expect(demo.leads.every((row) => row.phone.startsWith('1190000'))).toBe(true);
     expect(demo.interactions.every((row) => row.dataset === 'demo')).toBe(true);
+  });
+
+  it('inclui financeiro de demonstração coerente e marcado', () => {
+    const demo = buildDemoDataset(stages);
+    expect(demo.contracts.length).toBeGreaterThan(0);
+    expect(demo.contracts.every((row) => row.dataset === 'demo')).toBe(true);
+    expect(demo.contracts.every((row) => row.projectName.includes('(demo)'))).toBe(true);
+    expect(demo.payments.every((row) => row.dataset === 'demo')).toBe(true);
+    expect(demo.expenses.every((row) => row.dataset === 'demo')).toBe(true);
+
+    for (const contract of demo.contracts) {
+      const own = demo.payments.filter((payment) => payment.contractId === contract.id);
+      const total = own.reduce((sum, payment) => sum + payment.amount, 0);
+      // a agenda de demonstração fecha exatamente com o valor do contrato
+      expect(Number(total.toFixed(2))).toBe(contract.totalValue);
+      expect(own.some((payment) => payment.status === 'pago')).toBe(true);
+      expect(own.some((payment) => payment.status === 'pendente')).toBe(true);
+    }
+    // despesas de demonstração cobrem os dois estados
+    expect(demo.expenses.some((row) => row.status === 'paga')).toBe(true);
+    expect(demo.expenses.some((row) => row.status === 'prevista')).toBe(true);
   });
 });
 

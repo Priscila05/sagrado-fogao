@@ -2,7 +2,8 @@
 
 **Nenhuma oportunidade esquecida.**
 
-CRM pessoal para organizar clientes, acompanhar oportunidades e não esquecer nenhum contato.
+CRM pessoal para organizar clientes, acompanhar oportunidades e não esquecer nenhum contato —
+com módulo de **controle financeiro** (contratos, recebimentos e despesas).
 Aplicação estática (React + TypeScript + Vite + Tailwind), sem back-end, sem login e sem
 serviços externos: todos os dados ficam no banco local do navegador (IndexedDB).
 
@@ -36,6 +37,35 @@ serviços externos: todos os dados ficam no banco local do navegador (IndexedDB)
 | `npm test` | Testes automatizados (Vitest). |
 | `npm run package` | Gera `dist-zip/alinho-netlify.zip` e valida o conteúdo. |
 
+## Módulo financeiro
+
+Fica em **Financeiro**, na navegação lateral, com seis seções de URL própria:
+
+| Seção | O que faz |
+| --- | --- |
+| `/financeiro` | Faturamento contratado, total recebido, a receber, vencidos, despesas, lucro realizado e gráfico mensal. |
+| `/financeiro/contratos` | Contratos com cliente do CRM, projeto, valor, data, descrição e situação. A agenda de entrada e parcelas é gerada automaticamente. |
+| `/financeiro/pagamentos` | Entrada e parcelas com vencimento, valor recebido, forma de pagamento e situação (pendente, pago, vencido). |
+| `/financeiro/despesas` | Descrição, categoria, valor, data, situação e projeto vinculado (opcional). |
+| `/financeiro/historico` | Recebimentos e despesas em uma linha única, com filtros por cliente, período e situação, e exportação CSV. |
+| `/financeiro/relatorios` | Receitas, despesas, resultado, margem e pagamentos pendentes, com filtro de período e exportação CSV. |
+
+### Como os valores são calculados
+
+- **Faturamento contratado** soma os contratos não cancelados — é o que foi vendido, não o que entrou.
+- **Total recebido** soma apenas o valor efetivamente recebido das parcelas quitadas.
+  Parcela pendente **nunca** entra em receita: o campo de valor recebido é zerado enquanto
+  a parcela não é confirmada.
+- **Vencido** é derivado da data a cada exibição, nunca gravado — não existe parcela
+  "vencida" desatualizada no banco.
+- **Lucro realizado** = total recebido − despesas **pagas**. Despesa marcada como
+  "prevista" não afeta o lucro até ser paga.
+- **Sem duplicidade ao editar:** cada parcela é identificada pela posição na agenda do
+  contrato. Salvar o mesmo contrato de novo reconcilia a agenda em vez de recriá-la —
+  parcelas já pagas ficam intactas, as em aberto são recalculadas para cobrir o que falta
+  receber, e sobras deixam de existir sem apagar nada que já foi recebido.
+- Os indicadores são recalculados a partir dos lançamentos a cada alteração.
+
 ## Estrutura
 
 ```
@@ -45,7 +75,7 @@ src/
   models/       tipos do domínio, padrões e normalização/validação
   db/           esquema do IndexedDB, migrações e abstração de armazenamento
   repositories/ contratos de persistência + implementação local
-  services/     regras de negócio (métricas, relatórios, backup, CSV, demonstração)
+  services/     regras de negócio (métricas, relatórios, financeiro, backup, CSV, demonstração)
   hooks/        tema, media queries, debounce
   state/        provedor de dados da aplicação
   utils/        formatação brasileira, datas, links seguros, CSV
@@ -65,8 +95,13 @@ Nenhum componente React conversa diretamente com o IndexedDB: tudo passa por
 - Não há analytics, rastreadores ou chamadas a serviços externos. As fontes são
   empacotadas junto com o aplicativo.
 - **Faça backups.** Em *Configurações → Backup e portabilidade* você exporta um JSON
-  completo (leads, empresas, oportunidades, atividades, histórico, configurações e os
-  vínculos entre eles) e importa de volta, com validação e confirmação antes de substituir.
+  completo (leads, empresas, oportunidades, atividades, histórico, contratos, pagamentos,
+  despesas, configurações e os vínculos entre eles) e importa de volta, com validação e
+  confirmação antes de substituir.
+- O formato do backup está na **versão 2**. Backups da versão 1 (anteriores ao módulo
+  financeiro) continuam sendo importados normalmente: o CRM é restaurado e o financeiro
+  começa vazio, com um aviso explicando isso. Bancos locais da versão 1 também migram
+  sozinhos para a versão 2 ao abrir o aplicativo, sem perder dados.
 - Limpar os dados do site, trocar de navegador ou de computador significa começar vazio:
   a transferência é feita por exportação/importação de backup.
 - Por essas características, esta versão não é adequada a dados sensíveis nem a
@@ -107,3 +142,7 @@ exclusão de leads, empresas, funil (arrastar e soltar e seletor de etapa), ativ
 histórico, backup JSON (exportação, importação e rejeição de arquivo inválido), importação
 CSV, filtros, links de contato, layout de 320 px a desktop, contraste, navegação por
 teclado, uso offline e o comportamento quando o navegador bloqueia o armazenamento.
+As baterias `08` e `09` cobrem o módulo financeiro: geração da agenda de parcelas,
+recebimentos, despesas, cálculo de lucro, edição de contrato sem duplicar lançamentos,
+histórico, relatórios, backup versão 2, compatibilidade com backups e bancos da versão 1
+e layout responsivo das telas financeiras.

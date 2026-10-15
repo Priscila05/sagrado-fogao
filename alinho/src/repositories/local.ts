@@ -4,8 +4,11 @@ import { createDefaultSettings } from '../models/defaults';
 import {
   normalizeActivity,
   normalizeCompany,
+  normalizeContract,
+  normalizeExpense,
   normalizeInteraction,
   normalizeLead,
+  normalizePayment,
   normalizeSettings,
 } from '../models/normalize';
 import type {
@@ -16,11 +19,14 @@ import type {
   Lead,
   Settings,
 } from '../models/types';
+import type { Contract, Expense, Payment } from '../models/finance';
 import type {
   ActivityRepository,
   CollectionRepository,
+  ExpenseRepository,
   InteractionRepository,
   LeadRepository,
+  PaymentRepository,
   Repositories,
   SettingsRepository,
 } from './types';
@@ -129,6 +135,34 @@ const interactions: InteractionRepository = {
   },
 };
 
+const contractsCollection = createCollection<Contract>('contracts', (input) =>
+  normalizeContract(input),
+);
+const paymentsCollection = createCollection<Payment>('payments', (input) =>
+  normalizePayment(input),
+);
+const expensesCollection = createCollection<Expense>('expenses', (input) =>
+  normalizeExpense(input),
+);
+
+const payments: PaymentRepository = {
+  ...paymentsCollection,
+  async listByContract(contractId) {
+    const backend = await getBackend();
+    const rows = await backend.getAllByIndex<Payment>('payments', 'by_contract', contractId);
+    return rows.map((row) => normalizePayment(row));
+  },
+};
+
+const expenses: ExpenseRepository = {
+  ...expensesCollection,
+  async listByContract(contractId) {
+    const backend = await getBackend();
+    const rows = await backend.getAllByIndex<Expense>('expenses', 'by_contract', contractId);
+    return rows.map((row) => normalizeExpense(row));
+  },
+};
+
 const settings: SettingsRepository = {
   async read() {
     const backend = await getBackend();
@@ -153,6 +187,9 @@ export const localRepositories: Repositories = {
   companies: companiesCollection,
   activities,
   interactions,
+  contracts: contractsCollection,
+  payments,
+  expenses,
   settings,
   async replaceAll(payload) {
     const backend = await getBackend();
@@ -160,10 +197,16 @@ export const localRepositories: Repositories = {
     await backend.clear('companies');
     await backend.clear('activities');
     await backend.clear('interactions');
+    await backend.clear('contracts');
+    await backend.clear('payments');
+    await backend.clear('expenses');
     await backend.putMany('leads', payload.leads);
     await backend.putMany('companies', payload.companies);
     await backend.putMany('activities', payload.activities);
     await backend.putMany('interactions', payload.interactions);
+    await backend.putMany('contracts', payload.contracts);
+    await backend.putMany('payments', payload.payments);
+    await backend.putMany('expenses', payload.expenses);
     await backend.put('settings', payload.settings);
   },
   async clearDataset(dataset) {
@@ -171,5 +214,8 @@ export const localRepositories: Repositories = {
     await companiesCollection.clear(dataset);
     await activitiesCollection.clear(dataset);
     await interactionsCollection.clear(dataset);
+    await contractsCollection.clear(dataset);
+    await paymentsCollection.clear(dataset);
+    await expensesCollection.clear(dataset);
   },
 };

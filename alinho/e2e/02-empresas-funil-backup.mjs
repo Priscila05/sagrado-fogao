@@ -120,11 +120,11 @@ const backup = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
 record(
   '13. Exportação de backup JSON',
   backup.format === 'alinho-backup' &&
-    backup.version === 1 &&
+    backup.version === 2 &&
     backup.data.leads.length === 2 &&
     backup.data.companies.length === 1 &&
     backup.data.interactions.length > 0,
-  `leads=${backup.data.leads.length} empresas=${backup.data.companies.length} hist=${backup.data.interactions.length}`,
+  `v${backup.version} leads=${backup.data.leads.length} empresas=${backup.data.companies.length} hist=${backup.data.interactions.length}`,
 );
 await page.waitForTimeout(400);
 const backupNoted = await page.getByText(/Último backup exportado em/).isVisible();

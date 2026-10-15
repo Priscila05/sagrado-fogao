@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
@@ -93,11 +93,18 @@ export function LeadForm({
   );
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
-  useEffect(() => {
-    if (!open) return;
-    setForm(lead ? formFromLead(lead) : emptyForm(fallbackStage));
-    setErrors({});
-  }, [open, lead, fallbackStage]);
+  // Carrega os valores na própria renderização em que o modal abre. Com um
+  // efeito, havia uma janela em que os campos já estavam na tela com o conteúdo
+  // anterior e a digitação inicial podia ser sobrescrita.
+  const openKey = open ? `${lead?.id ?? 'novo'}:${fallbackStage}` : null;
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  if (openKey !== loadedKey) {
+    setLoadedKey(openKey);
+    if (open) {
+      setForm(lead ? formFromLead(lead) : emptyForm(fallbackStage));
+      setErrors({});
+    }
+  }
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));

@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Settings as SettingsIcon,
   Users,
+  Wallet,
   Workflow,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -24,6 +25,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/funil', label: 'Funil de vendas', shortLabel: 'Funil', icon: Workflow, primary: true },
   { to: '/empresas', label: 'Empresas e clientes', shortLabel: 'Empresas', icon: Building2, primary: false },
   { to: '/atividades', label: 'Atividades', shortLabel: 'Agenda', icon: CalendarCheck, primary: true },
+  { to: '/financeiro', label: 'Financeiro', shortLabel: 'Financeiro', icon: Wallet, primary: false },
   { to: '/relatorios', label: 'Relatórios', shortLabel: 'Relatórios', icon: BarChart3, primary: false },
   { to: '/configuracoes', label: 'Configurações', shortLabel: 'Ajustes', icon: SettingsIcon, primary: false },
 ];

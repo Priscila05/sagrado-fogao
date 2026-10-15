@@ -2,8 +2,11 @@ import { APP_VERSION, BACKUP_VERSION } from '../models/defaults';
 import {
   normalizeActivity,
   normalizeCompany,
+  normalizeContract,
+  normalizeExpense,
   normalizeInteraction,
   normalizeLead,
+  normalizePayment,
   normalizeSettings,
 } from '../models/normalize';
 import type {
@@ -14,12 +17,16 @@ import type {
   Lead,
   Settings,
 } from '../models/types';
+import type { Contract, Expense, Payment } from '../models/finance';
 
 export interface BackupPayload {
   leads: Lead[];
   companies: Company[];
   activities: Activity[];
   interactions: Interaction[];
+  contracts: Contract[];
+  payments: Payment[];
+  expenses: Expense[];
   settings: Settings;
 }
 
@@ -34,12 +41,18 @@ export function buildBackup(payload: BackupPayload): BackupFile {
       companies: payload.companies.length,
       activities: payload.activities.length,
       interactions: payload.interactions.length,
+      contracts: payload.contracts.length,
+      payments: payload.payments.length,
+      expenses: payload.expenses.length,
     },
     data: {
       leads: payload.leads,
       companies: payload.companies,
       activities: payload.activities,
       interactions: payload.interactions,
+      contracts: payload.contracts,
+      payments: payload.payments,
+      expenses: payload.expenses,
       settings: payload.settings,
     },
   };
@@ -57,6 +70,9 @@ export interface BackupReadResult {
     companies: number;
     activities: number;
     interactions: number;
+    contracts: number;
+    payments: number;
+    expenses: number;
     exportedAt: string | null;
     version: number;
   };
@@ -158,6 +174,58 @@ export function readBackup(text: string): BackupReadResult {
       return Boolean(interaction.leadId || interaction.companyId);
     });
 
+  /**
+   * Coleções do módulo financeiro. São opcionais de propósito: um backup da
+   * versão 1 (anterior ao financeiro) continua válido e importa com o
+   * financeiro vazio.
+   */
+  const rawContracts = Array.isArray(data.contracts) ? (data.contracts as unknown[]) : [];
+  const rawPayments = Array.isArray(data.payments) ? (data.payments as unknown[]) : [];
+  const rawExpenses = Array.isArray(data.expenses) ? (data.expenses as unknown[]) : [];
+
+  const contracts = rawContracts.map((row) => {
+    const contract = normalizeContract(row, now);
+    if (contract.companyId && !companyIds.has(contract.companyId)) {
+      warnings.push(
+        `Contrato "${contract.projectName || contract.clientName}" citava uma empresa inexistente; o vínculo foi removido.`,
+      );
+      contract.companyId = null;
+    }
+    if (contract.leadId && !leadIds.has(contract.leadId)) contract.leadId = null;
+    return contract;
+  });
+  const contractIds = new Set(contracts.map((contract) => contract.id));
+
+  const payments = rawPayments.map((row) => {
+    const payment = normalizePayment(row, now);
+    if (payment.contractId && !contractIds.has(payment.contractId)) {
+      warnings.push(
+        `Pagamento "${payment.label}" citava um contrato inexistente; passou a ser um lançamento avulso.`,
+      );
+      payment.contractId = null;
+      payment.kind = 'avulso';
+    }
+    if (payment.companyId && !companyIds.has(payment.companyId)) payment.companyId = null;
+    return payment;
+  });
+
+  const expenses = rawExpenses.map((row) => {
+    const expense = normalizeExpense(row, now);
+    if (expense.contractId && !contractIds.has(expense.contractId)) {
+      warnings.push(
+        `Despesa "${expense.description}" citava um contrato inexistente; o vínculo foi removido.`,
+      );
+      expense.contractId = null;
+    }
+    return expense;
+  });
+
+  if (version < 2 && (rawContracts.length === 0 || rawPayments.length === 0)) {
+    warnings.push(
+      'Backup gerado antes do módulo financeiro: os dados do CRM foram importados e o financeiro começa vazio.',
+    );
+  }
+
   const droppedInteractions = (data.interactions as unknown[]).length - interactions.length;
   if (droppedInteractions > 0) {
     warnings.push(
@@ -185,6 +253,9 @@ export function readBackup(text: string): BackupReadResult {
     companies: dedupe(companies, 'empresas'),
     activities: dedupe(activities, 'atividades'),
     interactions: dedupe(interactions, 'histórico'),
+    contracts: dedupe(contracts, 'contratos'),
+    payments: dedupe(payments, 'pagamentos'),
+    expenses: dedupe(expenses, 'despesas'),
     settings,
   };
 
@@ -197,6 +268,9 @@ export function readBackup(text: string): BackupReadResult {
       companies: payload.companies.length,
       activities: payload.activities.length,
       interactions: payload.interactions.length,
+      contracts: payload.contracts.length,
+      payments: payload.payments.length,
+      expenses: payload.expenses.length,
       exportedAt: typeof parsed.exportedAt === 'string' ? parsed.exportedAt : null,
       version,
     },

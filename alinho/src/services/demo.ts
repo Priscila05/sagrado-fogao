@@ -1,5 +1,15 @@
 import { createId } from '../utils/id';
-import { normalizeActivity, normalizeCompany, normalizeInteraction, normalizeLead } from '../models/normalize';
+import {
+  normalizeActivity,
+  normalizeCompany,
+  normalizeContract,
+  normalizeExpense,
+  normalizeInteraction,
+  normalizeLead,
+  normalizePayment,
+} from '../models/normalize';
+import type { Contract, Expense, Payment } from '../models/finance';
+import { planSchedule } from './finance';
 import type { Activity, Company, Interaction, Lead, Stage } from '../models/types';
 
 /**
@@ -60,6 +70,9 @@ export interface DemoDataset {
   companies: Company[];
   activities: Activity[];
   interactions: Interaction[];
+  contracts: Contract[];
+  payments: Payment[];
+  expenses: Expense[];
 }
 
 export function buildDemoDataset(stages: Stage[]): DemoDataset {
@@ -70,6 +83,9 @@ export function buildDemoDataset(stages: Stage[]): DemoDataset {
   const companies: Company[] = [];
   const activities: Activity[] = [];
   const interactions: Interaction[] = [];
+  const contracts: Contract[] = [];
+  const payments: Payment[] = [];
+  const expenses: Expense[] = [];
 
   SEEDS.forEach((seed, index) => {
     const phone = `${DEMO_PHONE_PREFIX}${String(index).padStart(4, '0')}`;
@@ -198,5 +214,103 @@ export function buildDemoDataset(stages: Stage[]): DemoDataset {
     }
   });
 
-  return { leads, companies, activities, interactions };
+  // Financeiro de demonstração: contratos apenas para os negócios ganhos, com
+  // parte das parcelas já recebida e uma parcela vencida, para que o painel
+  // mostre todos os estados possíveis.
+  const wonCompanies = companies.filter((_, index) => stageAt(SEEDS[index].stageIndex).kind === 'ganha');
+
+  wonCompanies.forEach((company, index) => {
+    const lead = leads.find((candidate) => candidate.companyId === company.id);
+    const totalValue = index === 0 ? 3200 : 6100;
+    const signedAt = isoDaysAgo(index === 0 ? 45 : 60);
+    const contract = normalizeContract({
+      id: createId(),
+      companyId: company.id,
+      leadId: lead?.id ?? null,
+      clientName: company.name,
+      projectName: index === 0 ? 'Site institucional (demo)' : 'Site e identidade visual (demo)',
+      totalValue,
+      signedAt,
+      description: 'Contrato de demonstração — dados fictícios.',
+      status: 'ativo',
+      downPayment: totalValue * 0.3,
+      installments: 3,
+      firstDueAt: isoDaysAgo(index === 0 ? 15 : 30),
+      paymentMethod: 'Pix',
+      createdAt: signedAt,
+      updatedAt: signedAt,
+      dataset: 'demo',
+    });
+    contracts.push(contract);
+
+    planSchedule(contract).forEach((slot, slotIndex) => {
+      // Entrada e primeira parcela pagas; o restante fica em aberto (uma
+      // delas já vencida, quando a data do primeiro vencimento passou).
+      const isPaid = slotIndex <= 1;
+      payments.push(
+        normalizePayment({
+          id: createId(),
+          contractId: contract.id,
+          companyId: company.id,
+          kind: slot.kind,
+          sequence: slot.sequence,
+          label: slot.label,
+          dueAt: slot.dueAt,
+          amount: slot.amount,
+          paidAmount: isPaid ? slot.amount : 0,
+          paidAt: isPaid ? slot.dueAt : null,
+          method: 'Pix',
+          status: isPaid ? 'pago' : 'pendente',
+          notes: '',
+          createdAt: signedAt,
+          updatedAt: signedAt,
+          dataset: 'demo',
+        }),
+      );
+    });
+
+    expenses.push(
+      normalizeExpense({
+        id: createId(),
+        description: 'Hospedagem anual (demo)',
+        category: 'Hospedagem e domínio',
+        amount: 420,
+        spentAt: isoDaysAgo(index === 0 ? 40 : 55),
+        contractId: contract.id,
+        status: 'paga',
+        paidAt: isoDaysAgo(index === 0 ? 40 : 55),
+        notes: 'Despesa de demonstração.',
+        dataset: 'demo',
+      }),
+    );
+  });
+
+  expenses.push(
+    normalizeExpense({
+      id: createId(),
+      description: 'Assinatura de banco de imagens (demo)',
+      category: 'Ferramentas e software',
+      amount: 180,
+      spentAt: isoDaysAgo(20),
+      contractId: null,
+      status: 'paga',
+      paidAt: isoDaysAgo(20),
+      notes: 'Despesa de demonstração.',
+      dataset: 'demo',
+    }),
+    normalizeExpense({
+      id: createId(),
+      description: 'Anúncios para captação (demo)',
+      category: 'Marketing e anúncios',
+      amount: 300,
+      spentAt: isoDaysAhead(10),
+      contractId: null,
+      status: 'prevista',
+      paidAt: null,
+      notes: 'Despesa de demonstração ainda não paga.',
+      dataset: 'demo',
+    }),
+  );
+
+  return { leads, companies, activities, interactions, contracts, payments, expenses };
 }

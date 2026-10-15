@@ -8,6 +8,13 @@ import { CompaniesPage } from './pages/CompaniesPage';
 import { CompanyDetailPage } from './pages/CompanyDetailPage';
 import { ActivitiesPage } from './pages/ActivitiesPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { FinanceLayout } from './pages/finance/FinanceLayout';
+import { FinanceOverviewPage } from './pages/finance/FinanceOverviewPage';
+import { ContractsPage } from './pages/finance/ContractsPage';
+import { PaymentsPage } from './pages/finance/PaymentsPage';
+import { ExpensesPage } from './pages/finance/ExpensesPage';
+import { FinanceHistoryPage } from './pages/finance/FinanceHistoryPage';
+import { FinanceReportsPage } from './pages/finance/FinanceReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { useData } from './state/DataProvider';
@@ -60,6 +67,14 @@ export function App() {
         <Route path="/empresas/:companyId" element={<CompanyDetailPage />} />
         <Route path="/atividades" element={<ActivitiesPage />} />
         <Route path="/relatorios" element={<ReportsPage />} />
+        <Route path="/financeiro" element={<FinanceLayout />}>
+          <Route index element={<FinanceOverviewPage />} />
+          <Route path="contratos" element={<ContractsPage />} />
+          <Route path="pagamentos" element={<PaymentsPage />} />
+          <Route path="despesas" element={<ExpensesPage />} />
+          <Route path="historico" element={<FinanceHistoryPage />} />
+          <Route path="relatorios" element={<FinanceReportsPage />} />
+        </Route>
         <Route path="/configuracoes" element={<SettingsPage />} />
         <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<Navigate to="/404" replace />} />

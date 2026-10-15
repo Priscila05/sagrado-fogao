@@ -6,6 +6,7 @@ import type {
   Lead,
   Settings,
 } from '../models/types';
+import type { Contract, Expense, Payment } from '../models/finance';
 
 /**
  * Repository contracts. Pages and hooks depend on these interfaces only, so a
@@ -37,6 +38,14 @@ export interface InteractionRepository extends CollectionRepository<Interaction>
   listByCompany(companyId: string): Promise<Interaction[]>;
 }
 
+export interface PaymentRepository extends CollectionRepository<Payment> {
+  listByContract(contractId: string): Promise<Payment[]>;
+}
+
+export interface ExpenseRepository extends CollectionRepository<Expense> {
+  listByContract(contractId: string): Promise<Expense[]>;
+}
+
 export interface SettingsRepository {
   read(): Promise<Settings>;
   write(settings: Settings): Promise<Settings>;
@@ -47,6 +56,9 @@ export interface Repositories {
   companies: CollectionRepository<Company>;
   activities: ActivityRepository;
   interactions: InteractionRepository;
+  contracts: CollectionRepository<Contract>;
+  payments: PaymentRepository;
+  expenses: ExpenseRepository;
   settings: SettingsRepository;
   /** Replaces every collection atomically from a validated backup. */
   replaceAll(payload: {
@@ -54,6 +66,9 @@ export interface Repositories {
     companies: Company[];
     activities: Activity[];
     interactions: Interaction[];
+    contracts: Contract[];
+    payments: Payment[];
+    expenses: Expense[];
     settings: Settings;
   }): Promise<void>;
   /** Removes every record of a dataset (used by "remove demonstration data"). */

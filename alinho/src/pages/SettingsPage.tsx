@@ -79,6 +79,20 @@ export function SettingsPage() {
             onChange={(next) => actions.updateSettings({ segments: next })}
             placeholder="Novo segmento"
           />
+          <TagListEditor
+            label="Categorias de despesa"
+            description="Usadas no cadastro de despesas do módulo financeiro."
+            values={settings.expenseCategories}
+            onChange={(next) => actions.updateSettings({ expenseCategories: next })}
+            placeholder="Nova categoria"
+          />
+          <TagListEditor
+            label="Formas de pagamento"
+            description="Oferecidas em contratos e no registro de recebimentos."
+            values={settings.paymentMethods}
+            onChange={(next) => actions.updateSettings({ paymentMethods: next })}
+            placeholder="Nova forma de pagamento"
+          />
         </div>
       </Panel>
 
@@ -158,6 +172,9 @@ export function SettingsPage() {
               ['Empresas', counts.real.companies],
               ['Atividades', counts.real.activities],
               ['Histórico', counts.real.interactions],
+              ['Contratos', counts.real.contracts],
+              ['Pagamentos', counts.real.payments],
+              ['Despesas', counts.real.expenses],
             ].map(([label, value]) => (
               <div key={String(label)}>
                 <dt className="text-2xs uppercase tracking-[0.05em] text-subtle">{label}</dt>
@@ -201,7 +218,11 @@ export function SettingsPage() {
         title="Apagar todos os dados reais"
         message={`Apagar ${formatNumber(counts.real.leads)} lead(s), ${formatNumber(
           counts.real.companies,
-        )} empresa(s), ${formatNumber(counts.real.activities)} atividade(s) e todo o histórico?`}
+        )} empresa(s), ${formatNumber(counts.real.activities)} atividade(s), ${formatNumber(
+          counts.real.contracts,
+        )} contrato(s), ${formatNumber(counts.real.payments)} pagamento(s), ${formatNumber(
+          counts.real.expenses,
+        )} despesa(s) e todo o histórico?`}
         detail="A ação é irreversível. As configurações e os dados de demonstração são mantidos."
         confirmLabel="Apagar definitivamente"
         onConfirm={async () => {

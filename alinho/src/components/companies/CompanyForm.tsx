@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { SelectInput, TextArea, TextInput } from '../ui/Field';
@@ -51,10 +51,16 @@ export function CompanyForm({
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
-  useEffect(() => {
-    if (!open) return;
+  // Carrega os valores na própria renderização em que o modal abre. Com um
+  // efeito, havia uma janela em que os campos já estavam na tela com o conteúdo
+  // anterior e a digitação inicial podia ser sobrescrita.
+  const openKey = open ? company?.id ?? 'nova' : null;
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  if (openKey !== loadedKey) {
+    setLoadedKey(openKey);
+    setErrors({});
     setForm(
-      company
+      open && company
         ? {
             name: company.name,
             segment: company.segment,
@@ -71,8 +77,7 @@ export function CompanyForm({
           }
         : EMPTY,
     );
-    setErrors({});
-  }, [open, company]);
+  }
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));

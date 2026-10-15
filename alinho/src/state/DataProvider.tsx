@@ -34,6 +34,17 @@ import {
   type CompanyDraft,
   type LeadDraft,
 } from '../services/crm';
+import type { Contract, Expense, Payment } from '../models/finance';
+import {
+  buildContract,
+  buildExpense,
+  buildPayment,
+  syncContractSchedule,
+  type ContractDraft,
+  type ExpenseDraft,
+  type PaymentDraft,
+} from '../services/finance';
+import { normalizeContract, normalizeExpense, normalizePayment } from '../models/normalize';
 import { buildDemoDataset } from '../services/demo';
 import { normalizeLead } from '../models/normalize';
 import type { BackupPayload } from '../services/backup';
@@ -46,6 +57,9 @@ export interface DatasetCounts {
   companies: number;
   activities: number;
   interactions: number;
+  contracts: number;
+  payments: number;
+  expenses: number;
 }
 
 export interface DataContextValue {
@@ -60,6 +74,9 @@ export interface DataContextValue {
   companies: Company[];
   activities: Activity[];
   interactions: Interaction[];
+  contracts: Contract[];
+  payments: Payment[];
+  expenses: Expense[];
   counts: Record<Dataset, DatasetCounts>;
   /** True while a mutation is being written. */
   saving: boolean;
@@ -91,6 +108,21 @@ export interface DataActions {
   }) => Promise<Interaction | null>;
   deleteInteraction: (id: string) => Promise<boolean>;
   updateSettings: (patch: Partial<Settings>) => Promise<Settings | null>;
+  /* ----------------------------------------------------------- financeiro -- */
+  createContract: (draft: ContractDraft) => Promise<Contract | null>;
+  updateContract: (id: string, patch: Partial<Contract>) => Promise<Contract | null>;
+  deleteContract: (id: string) => Promise<boolean>;
+  updatePayment: (id: string, patch: Partial<Payment>) => Promise<Payment | null>;
+  setPaymentPaid: (
+    id: string,
+    paid: boolean,
+    details?: { paidAmount?: number; paidAt?: string | null; method?: string },
+  ) => Promise<Payment | null>;
+  createPayment: (draft: PaymentDraft) => Promise<Payment | null>;
+  deletePayment: (id: string) => Promise<boolean>;
+  createExpense: (draft: ExpenseDraft) => Promise<Expense | null>;
+  updateExpense: (id: string, patch: Partial<Expense>) => Promise<Expense | null>;
+  deleteExpense: (id: string) => Promise<boolean>;
   importBackup: (payload: BackupPayload) => Promise<boolean>;
   importLeads: (drafts: Partial<Lead>[]) => Promise<number>;
   markBackupExported: () => Promise<void>;
@@ -104,6 +136,9 @@ export interface DataActions {
     companies: Company[];
     activities: Activity[];
     interactions: Interaction[];
+    contracts: Contract[];
+    payments: Payment[];
+    expenses: Expense[];
     settings: Settings;
   };
 }
@@ -116,16 +151,26 @@ function sortStages(stages: Stage[]): Stage[] {
 
 function countDataset(
   dataset: Dataset,
-  leads: Lead[],
-  companies: Company[],
-  activities: Activity[],
-  interactions: Interaction[],
+  rows: {
+    leads: Lead[];
+    companies: Company[];
+    activities: Activity[];
+    interactions: Interaction[];
+    contracts: Contract[];
+    payments: Payment[];
+    expenses: Expense[];
+  },
 ): DatasetCounts {
+  const count = <T extends { dataset: Dataset }>(list: T[]) =>
+    list.filter((row) => row.dataset === dataset).length;
   return {
-    leads: leads.filter((row) => row.dataset === dataset).length,
-    companies: companies.filter((row) => row.dataset === dataset).length,
-    activities: activities.filter((row) => row.dataset === dataset).length,
-    interactions: interactions.filter((row) => row.dataset === dataset).length,
+    leads: count(rows.leads),
+    companies: count(rows.companies),
+    activities: count(rows.activities),
+    interactions: count(rows.interactions),
+    contracts: count(rows.contracts),
+    payments: count(rows.payments),
+    expenses: count(rows.expenses),
   };
 }
 
@@ -140,6 +185,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [allCompanies, setAllCompanies] = useState<Company[]>([]);
   const [allActivities, setAllActivities] = useState<Activity[]>([]);
   const [allInteractions, setAllInteractions] = useState<Interaction[]>([]);
+  const [allContracts, setAllContracts] = useState<Contract[]>([]);
+  const [allPayments, setAllPayments] = useState<Payment[]>([]);
+  const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
 
   // Kept in a ref so actions can read current data without re-creating callbacks.
   const dataRef = useRef({
@@ -148,6 +196,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     companies: allCompanies,
     activities: allActivities,
     interactions: allInteractions,
+    contracts: allContracts,
+    payments: allPayments,
+    expenses: allExpenses,
   });
   dataRef.current = {
     settings,
@@ -155,23 +206,33 @@ export function DataProvider({ children }: { children: ReactNode }) {
     companies: allCompanies,
     activities: allActivities,
     interactions: allInteractions,
+    contracts: allContracts,
+    payments: allPayments,
+    expenses: allExpenses,
   };
 
   const load = useCallback(async () => {
     setStatus('loading');
     try {
-      const [storedSettings, leads, companies, activities, interactions] = await Promise.all([
-        repositories.settings.read(),
-        repositories.leads.list(),
-        repositories.companies.list(),
-        repositories.activities.list(),
-        repositories.interactions.list(),
-      ]);
+      const [storedSettings, leads, companies, activities, interactions, contracts, payments, expenses] =
+        await Promise.all([
+          repositories.settings.read(),
+          repositories.leads.list(),
+          repositories.companies.list(),
+          repositories.activities.list(),
+          repositories.interactions.list(),
+          repositories.contracts.list(),
+          repositories.payments.list(),
+          repositories.expenses.list(),
+        ]);
       setSettings(storedSettings);
       setAllLeads(leads);
       setAllCompanies(companies);
       setAllActivities(activities);
       setAllInteractions(interactions);
+      setAllContracts(contracts);
+      setAllPayments(payments);
+      setAllExpenses(expenses);
       setError(null);
       setStatus('ready');
     } catch (cause) {
@@ -663,7 +724,244 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [updateSettings],
   );
 
+
+  /* ------------------------------------------------------------ financeiro --- */
+
+  /**
+   * Grava a agenda reconciliada de um contrato. A reconciliação acontece em
+   * `syncContractSchedule`: parcelas são identificadas pela posição na agenda,
+   * então salvar o mesmo contrato duas vezes nunca duplica lançamentos.
+   */
+  const persistSchedule = useCallback(
+    async (contract: Contract, existing: Payment[]) => {
+      const result = syncContractSchedule(contract, existing);
+      if (result.removed.length > 0) {
+        await repositories.payments.removeMany(result.removed.map((row) => row.id));
+      }
+      const written = await repositories.payments.saveMany([...result.created, ...result.updated]);
+      const removedIds = new Set(result.removed.map((row) => row.id));
+      const writtenById = new Map(written.map((row) => [row.id, row]));
+      setAllPayments((rows) => {
+        const next = rows
+          .filter((row) => !removedIds.has(row.id))
+          .map((row) => writtenById.get(row.id) ?? row);
+        const existingIds = new Set(next.map((row) => row.id));
+        return [...next, ...written.filter((row) => !existingIds.has(row.id))];
+      });
+      return result;
+    },
+    [],
+  );
+
+  const createContract = useCallback<DataActions['createContract']>(
+    (draft) =>
+      run('createContract', async () => {
+        const current = dataRef.current;
+        const contract = buildContract(draft, current.settings.activeDataset);
+        const saved = await repositories.contracts.save(contract);
+        setAllContracts((rows) => [...rows, saved]);
+        await persistSchedule(saved, []);
+        toast.success('Contrato cadastrado', 'A agenda de pagamentos foi gerada.');
+        return saved;
+      }),
+    [run, persistSchedule, toast],
+  );
+
+  const updateContract = useCallback<DataActions['updateContract']>(
+    (id, patch) =>
+      run('updateContract', async () => {
+        const current = dataRef.current;
+        const existing = current.contracts.find((contract) => contract.id === id);
+        if (!existing) return null;
+        const saved = await repositories.contracts.save(
+          normalizeContract({
+            ...existing,
+            ...patch,
+            id: existing.id,
+            dataset: existing.dataset,
+            createdAt: existing.createdAt,
+            updatedAt: new Date().toISOString(),
+          }),
+        );
+        setAllContracts((rows) => rows.map((row) => (row.id === saved.id ? saved : row)));
+        const own = current.payments.filter((payment) => payment.contractId === saved.id);
+        const result = await persistSchedule(saved, own);
+        toast.success(
+          'Contrato atualizado',
+          result.kept.some((payment) => payment.status === 'pago')
+            ? 'Parcelas já pagas foram preservadas; apenas as em aberto foram recalculadas.'
+            : undefined,
+        );
+        return saved;
+      }),
+    [run, persistSchedule, toast],
+  );
+
+  const deleteContract = useCallback<DataActions['deleteContract']>(
+    async (id) => {
+      const result = await run('deleteContract', async () => {
+        const current = dataRef.current;
+        const own = current.payments.filter((payment) => payment.contractId === id);
+        await repositories.payments.removeMany(own.map((row) => row.id));
+        setAllPayments((rows) => rows.filter((row) => row.contractId !== id));
+
+        // Despesas são custos reais: perdem o vínculo, mas nunca somem.
+        const linkedExpenses = current.expenses.filter((expense) => expense.contractId === id);
+        for (const expense of linkedExpenses) {
+          const saved = await repositories.expenses.save({
+            ...expense,
+            contractId: null,
+            updatedAt: new Date().toISOString(),
+          });
+          setAllExpenses((rows) => rows.map((row) => (row.id === saved.id ? saved : row)));
+        }
+
+        await repositories.contracts.remove(id);
+        setAllContracts((rows) => rows.filter((row) => row.id !== id));
+        toast.success(
+          'Contrato excluído',
+          linkedExpenses.length > 0
+            ? `${linkedExpenses.length} despesa(s) foram mantidas, agora sem projeto vinculado.`
+            : 'A agenda de pagamentos foi removida junto.',
+        );
+        return true;
+      });
+      return result ?? false;
+    },
+    [run, toast],
+  );
+
+  const updatePayment = useCallback<DataActions['updatePayment']>(
+    (id, patch) =>
+      run('updatePayment', async () => {
+        const existing = dataRef.current.payments.find((payment) => payment.id === id);
+        if (!existing) return null;
+        const saved = await repositories.payments.save(
+          normalizePayment({
+            ...existing,
+            ...patch,
+            id: existing.id,
+            dataset: existing.dataset,
+            createdAt: existing.createdAt,
+            updatedAt: new Date().toISOString(),
+          }),
+        );
+        setAllPayments((rows) => rows.map((row) => (row.id === saved.id ? saved : row)));
+        return saved;
+      }),
+    [run],
+  );
+
+  const setPaymentPaid = useCallback<DataActions['setPaymentPaid']>(
+    async (id, paid, details) => {
+      const existing = dataRef.current.payments.find((payment) => payment.id === id);
+      if (!existing) return null;
+      const saved = await updatePayment(id, {
+        status: paid ? 'pago' : 'pendente',
+        // Sem valor informado, considera-se que entrou exatamente o previsto.
+        paidAmount: paid ? details?.paidAmount ?? existing.amount : 0,
+        paidAt: paid ? details?.paidAt ?? new Date().toISOString() : null,
+        method: details?.method ?? existing.method,
+      });
+      if (saved) {
+        toast.success(
+          paid ? 'Pagamento registrado' : 'Pagamento reaberto',
+          paid ? 'O valor entrou no total recebido.' : 'O valor saiu do total recebido.',
+        );
+      }
+      return saved;
+    },
+    [updatePayment, toast],
+  );
+
+  const createPayment = useCallback<DataActions['createPayment']>(
+    (draft) =>
+      run('createPayment', async () => {
+        const current = dataRef.current;
+        // Lançamento extra: entra como avulso para não colidir com a agenda.
+        const siblings = current.payments.filter(
+          (payment) => draft.contractId && payment.contractId === draft.contractId,
+        );
+        const nextSequence =
+          siblings.length > 0 ? Math.max(...siblings.map((payment) => payment.sequence)) + 1 : 1;
+        const payment = buildPayment(
+          {
+            ...draft,
+            kind: draft.kind ?? 'avulso',
+            sequence: draft.sequence ?? nextSequence,
+            label: draft.label || 'Lançamento avulso',
+          },
+          current.settings.activeDataset,
+        );
+        const saved = await repositories.payments.save(payment);
+        setAllPayments((rows) => [...rows, saved]);
+        toast.success('Lançamento criado');
+        return saved;
+      }),
+    [run, toast],
+  );
+
+  const deletePayment = useCallback<DataActions['deletePayment']>(
+    async (id) => {
+      const result = await run('deletePayment', async () => {
+        await repositories.payments.remove(id);
+        setAllPayments((rows) => rows.filter((row) => row.id !== id));
+        toast.success('Lançamento excluído');
+        return true;
+      });
+      return result ?? false;
+    },
+    [run, toast],
+  );
+
+  const createExpense = useCallback<DataActions['createExpense']>(
+    (draft) =>
+      run('createExpense', async () => {
+        const expense = buildExpense(draft, dataRef.current.settings.activeDataset);
+        const saved = await repositories.expenses.save(expense);
+        setAllExpenses((rows) => [...rows, saved]);
+        toast.success('Despesa registrada');
+        return saved;
+      }),
+    [run, toast],
+  );
+
+  const updateExpense = useCallback<DataActions['updateExpense']>(
+    (id, patch) =>
+      run('updateExpense', async () => {
+        const existing = dataRef.current.expenses.find((expense) => expense.id === id);
+        if (!existing) return null;
+        const saved = await repositories.expenses.save(
+          normalizeExpense({
+            ...existing,
+            ...patch,
+            id: existing.id,
+            dataset: existing.dataset,
+            createdAt: existing.createdAt,
+            updatedAt: new Date().toISOString(),
+          }),
+        );
+        setAllExpenses((rows) => rows.map((row) => (row.id === saved.id ? saved : row)));
+        return saved;
+      }),
+    [run],
+  );
+
+  const deleteExpense = useCallback<DataActions['deleteExpense']>(
+    async (id) => {
+      const result = await run('deleteExpense', async () => {
+        await repositories.expenses.remove(id);
+        setAllExpenses((rows) => rows.filter((row) => row.id !== id));
+        toast.success('Despesa excluída');
+        return true;
+      });
+      return result ?? false;
+    },
+    [run, toast],
+  );
+
   /* ----------------------------------------------------------------- import --- */
+
 
   const importBackup = useCallback<DataActions['importBackup']>(
     async (payload) => {
@@ -736,6 +1034,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
           ...rows.filter((r) => r.dataset !== 'demo'),
           ...demo.interactions,
         ]);
+        await repositories.contracts.saveMany(demo.contracts);
+        await repositories.payments.saveMany(demo.payments);
+        await repositories.expenses.saveMany(demo.expenses);
+        setAllContracts((rows) => [...rows.filter((r) => r.dataset !== 'demo'), ...demo.contracts]);
+        setAllPayments((rows) => [...rows.filter((r) => r.dataset !== 'demo'), ...demo.payments]);
+        setAllExpenses((rows) => [...rows.filter((r) => r.dataset !== 'demo'), ...demo.expenses]);
         toast.success('Demonstração carregada', 'Os dados reais continuam separados e intactos.');
         return true;
       });
@@ -758,6 +1062,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setAllCompanies((rows) => rows.filter((row) => row.dataset !== 'demo'));
         setAllActivities((rows) => rows.filter((row) => row.dataset !== 'demo'));
         setAllInteractions((rows) => rows.filter((row) => row.dataset !== 'demo'));
+        setAllContracts((rows) => rows.filter((row) => row.dataset !== 'demo'));
+        setAllPayments((rows) => rows.filter((row) => row.dataset !== 'demo'));
+        setAllExpenses((rows) => rows.filter((row) => row.dataset !== 'demo'));
         toast.success('Dados de demonstração removidos');
         return true;
       });
@@ -774,6 +1081,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setAllCompanies((rows) => rows.filter((row) => row.dataset !== 'real'));
         setAllActivities((rows) => rows.filter((row) => row.dataset !== 'real'));
         setAllInteractions((rows) => rows.filter((row) => row.dataset !== 'real'));
+        setAllContracts((rows) => rows.filter((row) => row.dataset !== 'real'));
+        setAllPayments((rows) => rows.filter((row) => row.dataset !== 'real'));
+        setAllExpenses((rows) => rows.filter((row) => row.dataset !== 'real'));
         toast.success('Dados apagados', 'Os registros reais foram removidos deste navegador.');
         return true;
       });
@@ -789,6 +1099,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       companies: current.companies,
       activities: current.activities,
       interactions: current.interactions,
+      contracts: current.contracts,
+      payments: current.payments,
+      expenses: current.expenses,
       settings: current.settings,
     };
   }, []);
@@ -815,6 +1128,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addInteraction,
       deleteInteraction,
       updateSettings,
+      createContract,
+      updateContract,
+      deleteContract,
+      updatePayment,
+      setPaymentPaid,
+      createPayment,
+      deletePayment,
+      createExpense,
+      updateExpense,
+      deleteExpense,
       importBackup,
       importLeads,
       markBackupExported,
@@ -843,6 +1166,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addInteraction,
       deleteInteraction,
       updateSettings,
+      createContract,
+      updateContract,
+      deleteContract,
+      updatePayment,
+      setPaymentPaid,
+      createPayment,
+      deletePayment,
+      createExpense,
+      updateExpense,
+      deleteExpense,
       importBackup,
       importLeads,
       markBackupExported,
@@ -859,6 +1192,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const companies = allCompanies.filter((row) => row.dataset === dataset);
     const activities = allActivities.filter((row) => row.dataset === dataset);
     const interactions = allInteractions.filter((row) => row.dataset === dataset);
+    const contracts = allContracts.filter((row) => row.dataset === dataset);
+    const payments = allPayments.filter((row) => row.dataset === dataset);
+    const expenses = allExpenses.filter((row) => row.dataset === dataset);
+    const datasets = {
+      leads: allLeads,
+      companies: allCompanies,
+      activities: allActivities,
+      interactions: allInteractions,
+      contracts: allContracts,
+      payments: allPayments,
+      expenses: allExpenses,
+    };
     return {
       status,
       error,
@@ -870,9 +1215,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
       companies,
       activities,
       interactions,
+      contracts,
+      payments,
+      expenses,
       counts: {
-        real: countDataset('real', allLeads, allCompanies, allActivities, allInteractions),
-        demo: countDataset('demo', allLeads, allCompanies, allActivities, allInteractions),
+        real: countDataset('real', datasets),
+        demo: countDataset('demo', datasets),
       },
       saving,
       actions,
@@ -887,6 +1235,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     allCompanies,
     allActivities,
     allInteractions,
+    allContracts,
+    allPayments,
+    allExpenses,
     saving,
     actions,
   ]);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { SelectInput, TextArea, TextInput } from '../ui/Field';
@@ -53,9 +53,15 @@ export function ActivityForm({
   }));
   const [error, setError] = useState<string | undefined>();
 
-  useEffect(() => {
-    if (!open) return;
-    if (activity) {
+  // Carrega os valores na própria renderização em que o modal abre. Com um
+  // efeito, havia uma janela em que os campos já estavam na tela com o conteúdo
+  // anterior e a digitação inicial podia ser sobrescrita.
+  const openKey = open ? activity?.id ?? `nova:${defaultLeadId ?? ''}:${defaultCompanyId ?? ''}` : null;
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  if (openKey !== loadedKey) {
+    setLoadedKey(openKey);
+    setError(undefined);
+    if (open && activity) {
       setForm({
         title: activity.title,
         type: activity.type,
@@ -65,7 +71,7 @@ export function ActivityForm({
         companyId: activity.companyId ?? '',
         notes: activity.notes,
       });
-    } else {
+    } else if (open) {
       setForm({
         title: '',
         type: 'ligacao',
@@ -76,8 +82,7 @@ export function ActivityForm({
         notes: '',
       });
     }
-    setError(undefined);
-  }, [open, activity, defaultLeadId, defaultCompanyId]);
+  }
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => {

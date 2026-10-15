@@ -103,6 +103,9 @@ describe('repositórios locais', () => {
       companies: [],
       activities: [],
       interactions: [],
+      contracts: [],
+      payments: [],
+      expenses: [],
       settings: createDefaultSettings(),
     });
 
