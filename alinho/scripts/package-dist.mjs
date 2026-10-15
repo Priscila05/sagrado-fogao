@@ -4,6 +4,10 @@
  * Produces `dist-zip/alinho-netlify.zip` with `index.html` at the ROOT of the
  * archive (Netlify refuses a zip that only contains a folder), then verifies
  * the result by listing the archive's entries.
+ *
+ * Passe `--equipe` para exigir que o build tenha sido compilado em modo equipe
+ * (com as variáveis do Supabase). Assim não há como publicar por engano um
+ * pacote local em cima da versão multiusuário.
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -17,6 +21,20 @@ const zipPath = path.join(outDir, 'alinho-netlify.zip');
 
 if (!fs.existsSync(path.join(dist, 'index.html'))) {
   console.error('dist/index.html não encontrado. Rode "npm run build" antes de empacotar.');
+  process.exit(1);
+}
+
+const exigeEquipe = process.argv.includes('--equipe');
+const infoPath = path.join(dist, 'build-info.json');
+const info = fs.existsSync(infoPath)
+  ? JSON.parse(fs.readFileSync(infoPath, 'utf8'))
+  : { mode: 'desconhecido' };
+
+if (exigeEquipe && info.mode !== 'equipe') {
+  console.error(
+    `O build em dist/ está no modo "${info.mode}", e você pediu um pacote do modo equipe.\n` +
+      'Defina VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY (arquivo .env) e rode "npm run build" de novo.',
+  );
   process.exit(1);
 }
 
@@ -45,5 +63,8 @@ if (!entries.some((entry) => entry.startsWith('assets/'))) {
 
 const size = (fs.statSync(zipPath).size / 1024).toFixed(0);
 console.log(`Pacote gerado: ${path.relative(root, zipPath)} (${size} kB)`);
+console.log(
+  `Modo do build: ${info.mode}${info.supabaseHost ? ` (Supabase: ${info.supabaseHost})` : ''}`,
+);
 console.log(`Conteúdo da raiz: ${entries.filter((e) => !e.includes('/')).join(', ')}`);
 console.log(`Arquivos em assets/: ${entries.filter((e) => e.startsWith('assets/')).length}`);

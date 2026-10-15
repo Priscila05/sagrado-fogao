@@ -82,7 +82,20 @@ criados por você em **Authentication → Users → Add user**.
 - **Redirect URLs**: inclua o mesmo endereço — é para onde volta o link de
   "esqueci minha senha".
 
-## 5. Variáveis do build
+## 5. Conferir a conexão sem publicar nada
+
+Com o `.env` preenchido, rode:
+
+```bash
+npm run verificar:supabase
+```
+
+São **apenas leituras que devem falhar**: o script confirma que o endereço e a
+chave publicável funcionam, que o login por e-mail está ligado, que o cadastro
+público está desligado e que, sem login, o banco não entrega nem aceita dados.
+Nada é gravado e nenhuma senha é necessária.
+
+## 6. Variáveis do build
 
 Em *Project Settings → API*, copie:
 
@@ -96,11 +109,16 @@ de gerar o build: o Vite grava esses valores no pacote no momento da compilaçã
 
 ```bash
 cd alinho
-cp .env.example .env    # preencha com os seus dados
+cp .env.example .env     # preencha com os seus dados
 npm install
 npm run build
-npm run package         # gera dist-zip/alinho-netlify.zip
+npm run package:equipe   # gera dist-zip/alinho-netlify.zip
 ```
+
+`package:equipe` **recusa** empacotar se o build em `dist/` tiver sido compilado
+sem as variáveis — é a trava que impede publicar a versão local por engano em
+cima da versão multiusuário. O pacote traz um `build-info.json` dizendo o modo e
+o host do Supabase (sem nenhuma credencial), para você conferir antes de subir.
 
 Se você conectar o Netlify ao repositório em vez de subir o ZIP, defina as duas
 variáveis em *Site configuration → Environment variables* e deixe o Netlify
@@ -110,7 +128,7 @@ compilar.
 e qualquer visitante do site conseguiria lê-la. O aplicativo detecta e recusa
 chaves de servidor, mas a responsabilidade de não publicá-las é de quem gera o build.
 
-## 6. Conferir se ficou seguro
+## 7. Conferir se ficou seguro
 
 No SQL Editor:
 

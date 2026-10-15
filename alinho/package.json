@@ -12,7 +12,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "package": "node scripts/package-dist.mjs",
-    "test:e2e": "node e2e/run-all.mjs"
+    "test:e2e": "node e2e/run-all.mjs",
+    "package:equipe": "node scripts/package-dist.mjs --equipe",
+    "verificar:supabase": "node scripts/verificar-supabase.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-sans": "^5.1.0",
