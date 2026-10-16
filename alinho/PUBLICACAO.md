@@ -13,11 +13,33 @@ Se aparecer `"mode": "local"`, é o pacote errado — não publique.
 
 ## 1. Subir no Netlify
 
-1. Entre em <https://app.netlify.com> → **Add new site** → **Deploy manually**.
-2. Arraste o arquivo `alinho-netlify.zip` para a área de upload.
+**Atualizando um site que já existe** (o caso normal, depois da primeira vez):
+
+1. Entre em <https://app.netlify.com> e **abra o site** pelo nome na lista.
+2. Vá na aba **Deploys** do próprio site.
+3. Arraste o `alinho-netlify.zip` para a faixa de upload no rodapé dessa página.
+4. Espere a nova implantação aparecer no topo da lista como **Published**.
+
+Não use **Add new site** para atualizar: esse caminho cria um site **novo**, em um
+endereço novo, e deixa o site antigo no ar com o pacote velho. É o erro mais fácil
+de cometer aqui — a tela não muda e parece que a publicação não funcionou.
+
+**Criando o site pela primeira vez:**
+
+1. **Add new site** → **Deploy manually** e arraste o `alinho-netlify.zip`.
    O ZIP tem o `index.html` na raiz, como o Netlify exige.
-3. Anote o endereço que o Netlify der (ex.: `https://alinho-sua-equipe.netlify.app`).
+2. Anote o endereço que o Netlify der (ex.: `https://alinho-sua-equipe.netlify.app`).
    Se quiser trocar: **Site configuration → Change site name**.
+
+**Confira sempre o que ficou no ar** abrindo `<endereço>/build-info.json`: ele diz o
+modo do pacote publicado e o host do Supabase. Se disser `"mode": "local"` depois de
+você subir o pacote de equipe, o arquivo foi para outro site.
+
+Se o `build-info.json` já disser `"mode": "equipe"` mas o navegador insistir na tela
+antiga, é cache: recarregue com Ctrl+Shift+R ou, em F12 → **Application** →
+**Service Workers**, clique em **Unregister** e recarregue. Não clique em
+**Clear site data**: isso apaga o IndexedDB, ou seja, os dados da versão individual
+guardados naquele navegador.
 
 O roteamento já vem resolvido: o `_redirects` dentro do pacote manda toda rota
 para o `index.html`, então `/leads/123` e `/financeiro` abrem direto e o F5 em
