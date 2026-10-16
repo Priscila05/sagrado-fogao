@@ -68,6 +68,8 @@ export interface DataContextValue {
   /** De onde vêm os dados: navegador deste computador ou banco da empresa. */
   source: 'local' | 'equipe';
   error: string | null;
+  /** Mensagem crua de quem recusou a leitura — o que diz POR QUE falhou. */
+  errorDetail: string | null;
   storageMode: 'indexeddb' | 'memory' | 'unknown';
   settings: Settings;
   stages: Stage[];
@@ -177,13 +179,33 @@ function countDataset(
   };
 }
 
+/**
+ * Texto técnico do que recusou a leitura. Um erro do banco da empresa carrega
+ * a resposta crua do PostgREST em `detalhe`; o banco local do navegador traz o
+ * nome do erro do IndexedDB (NotFoundError, VersionError e afins).
+ */
+function detalharCausa(cause: unknown): string {
+  if (cause && typeof cause === 'object' && 'detalhe' in cause) {
+    return String((cause as { detalhe: unknown }).detalhe);
+  }
+  if (cause instanceof Error) {
+    return cause.name && cause.name !== 'Error' ? `${cause.name}: ${cause.message}` : cause.message;
+  }
+  return String(cause);
+}
+
 export function DataProvider({ children }: { children: ReactNode }) {
   const toast = useToast();
   const { mode, status: authStatus, profile } = useAuth();
   const isTeam = mode === 'equipe';
+  // `load` é estável (sem dependências) para não recarregar a cada render; o
+  // ref deixa o modo atual visível lá dentro sem recriá-la.
+  const isTeamRef = useRef(isTeam);
+  isTeamRef.current = isTeam;
 
   const [status, setStatus] = useState<Status>('loading');
   const [error, setError] = useState<string | null>(null);
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<Settings>(() => createDefaultSettings());
   const [allLeads, setAllLeads] = useState<Lead[]>([]);
@@ -239,12 +261,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setAllPayments(payments);
       setAllExpenses(expenses);
       setError(null);
+      setErrorDetail(null);
       setStatus('ready');
     } catch (cause) {
-      console.error('[alinho] falha ao carregar os dados locais', cause);
+      console.error('[alinho] falha ao carregar os dados', cause);
       setError(
-        'Não foi possível abrir o banco de dados local do navegador. Verifique se o armazenamento do site está liberado.',
+        isTeamRef.current
+          ? 'Não foi possível carregar os dados da empresa. O login funcionou, mas o banco recusou a leitura.'
+          : 'Não foi possível abrir o banco de dados local do navegador. Verifique se o armazenamento do site está liberado.',
       );
+      // O motivo técnico vai para a tela, não só para o console: é ele que
+      // diz o que corrigir, e nem todo mundo consegue abrir o console.
+      setErrorDetail(detalharCausa(cause));
       setStatus('error');
     }
   }, []);
@@ -1239,6 +1267,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return {
       status,
       error,
+      errorDetail,
       source: isTeam ? 'equipe' : 'local',
       storageMode: isTeam ? 'indexeddb' : backendKind(),
       settings,
@@ -1261,6 +1290,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [
     status,
     error,
+    errorDetail,
     isTeam,
     settings,
     stages,

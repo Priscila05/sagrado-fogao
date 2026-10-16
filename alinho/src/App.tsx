@@ -53,7 +53,7 @@ function Require({
 }
 
 export function App() {
-  const { status, error, actions } = useData();
+  const { status, error, errorDetail, actions } = useData();
   const auth = useAuth();
 
   // Modo equipe: nada é exibido antes do login.
@@ -72,7 +72,7 @@ export function App() {
 
   if (status === 'error') {
     return (
-      <div className="flex h-dvh flex-col items-center justify-center gap-4 bg-canvas px-6 text-center">
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-canvas px-6 py-10 text-center">
         <LogoMark className="h-7 w-7" />
         <div className="max-w-md">
           <h1 className="text-lg font-semibold text-ink">Não foi possível abrir seus dados</h1>
@@ -80,10 +80,31 @@ export function App() {
             {error ??
               'O navegador recusou o acesso ao armazenamento local. Verifique as permissões do site.'}
           </p>
+          {errorDetail ? (
+            <details className="mt-4 text-left">
+              <summary className="cursor-pointer text-sm text-muted underline underline-offset-4">
+                Ver o motivo técnico
+              </summary>
+              <p className="mt-2 break-words rounded-lg bg-surface px-3 py-2 font-mono text-xs leading-relaxed text-ink">
+                {errorDetail}
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-muted">
+                Essa é a resposta de quem recusou a leitura. Mostre esta mensagem a quem
+                cuida da configuração: é ela que diz o que corrigir.
+              </p>
+            </details>
+          ) : null}
         </div>
-        <Button variant="primary" onClick={() => void actions.reload()}>
-          Tentar novamente
-        </Button>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Button variant="primary" onClick={() => void actions.reload()}>
+            Tentar novamente
+          </Button>
+          {auth.mode === 'equipe' ? (
+            <Button variant="ghost" onClick={() => void auth.signOut()}>
+              Sair
+            </Button>
+          ) : null}
+        </div>
       </div>
     );
   }

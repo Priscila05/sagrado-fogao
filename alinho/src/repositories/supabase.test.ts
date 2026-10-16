@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { createSupabaseRepositories, describeError, type RemoteContext } from './supabase';
+import { ErroDoBanco, createSupabaseRepositories, describeError, type RemoteContext } from './supabase';
 import { buildLead, buildActivity, buildInteraction } from '../services/crm';
 import { buildContract, buildPayment } from '../services/finance';
 
@@ -205,5 +205,34 @@ describe('repositório Supabase', () => {
     const repositories = createSupabaseRepositories(context(client));
     await repositories.clearDataset('demo');
     expect(calls.filter((call) => call.op === 'delete')).toHaveLength(0);
+  });
+});
+
+describe('ErroDoBanco', () => {
+  it('mostra a mensagem amigável e guarda a resposta crua', () => {
+    const erro = new ErroDoBanco({ code: '42501', message: 'permission denied for table leads' });
+    expect(erro.message).toBe('Seu perfil não tem permissão para esta operação.');
+    expect(erro.detalhe).toBe('42501 · permission denied for table leads');
+  });
+
+  it('junta código, mensagem, detalhes e dica', () => {
+    const erro = new ErroDoBanco({
+      code: 'PGRST205',
+      message: "Could not find the table 'public.contracts' in the schema cache",
+      hint: 'Rode a migração 0001.',
+    });
+    expect(erro.detalhe).toContain('PGRST205');
+    expect(erro.detalhe).toContain('public.contracts');
+    expect(erro.detalhe).toContain('Rode a migração 0001.');
+  });
+
+  it('não fica sem detalhe quando o banco não manda nada', () => {
+    expect(new ErroDoBanco(null).detalhe).toBe('sem detalhe do banco');
+  });
+
+  it('continua sendo um Error, para quem só lê a mensagem', () => {
+    const erro = new ErroDoBanco({ code: '23505', message: 'duplicate key' });
+    expect(erro).toBeInstanceOf(Error);
+    expect(erro.message).toBe('Já existe um registro com esses dados.');
   });
 });

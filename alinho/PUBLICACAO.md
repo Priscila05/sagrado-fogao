@@ -137,5 +137,6 @@ navegador, mas deixam de aparecer. Exporte o backup **antes** de trocar.
 | "Configuração do Supabase incompleta" | O build saiu sem uma das duas variáveis |
 | Erro ao entrar com a senha certa | Confirmação de e-mail pendente, ou conta desativada em Equipe |
 | Entra mas não vê lead nenhum | Normal para vendedor novo: ninguém distribuiu leads ainda |
+| Entra e cai em "Não foi possível abrir seus dados" | Abra **Ver o motivo técnico** na própria tela; para o retrato completo, rode `supabase/diagnostico.sql` no SQL Editor |
 | Link de senha volta para `localhost` | Site URL / Redirect URLs ainda não apontam para o Netlify (passo 2) |
 | F5 em `/leads` dá 404 | O `_redirects` não subiu junto; refaça o upload do ZIP inteiro |

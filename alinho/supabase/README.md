@@ -99,6 +99,14 @@ Rode-o de uma máquina com acesso à internet ao endereço do seu projeto. Em um
 ambiente de rede fechada a saída é `TypeError: fetch failed` — isso é a rede
 barrando a conexão, não um problema do projeto nem da chave.
 
+### Quando o login funciona mas os dados não carregam
+
+A tela do ALINHO mostra o motivo técnico em **"Ver o motivo técnico"** — é a
+resposta crua do banco, e ela diz o que corrigir (tabela que falta, permissão
+negada, política ausente). Para um retrato completo, cole
+[`diagnostico.sql`](diagnostico.sql) no SQL Editor: ele só lê o catálogo e
+devolve `OK` ou o que fazer, tabela por tabela, incluindo o seu perfil.
+
 ## 6. Variáveis do build
 
 Em *Project Settings → API*, copie:

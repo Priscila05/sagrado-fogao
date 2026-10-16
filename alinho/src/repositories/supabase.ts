@@ -345,6 +345,25 @@ function expenseToRow(expense: Expense, context: RemoteContext): Row {
 
 /* ------------------------------------------------------------- utilitários --- */
 
+/**
+ * Erro vindo do banco da empresa: a mensagem é a versão legível, e `detalhe`
+ * guarda a resposta crua do PostgREST. A versão legível serve para avisar a
+ * pessoa; o detalhe é o que diz O QUE corrigir, e sem ele um "sem permissão"
+ * não revela nem qual tabela recusou.
+ */
+export class ErroDoBanco extends Error {
+  readonly detalhe: string;
+
+  constructor(error: { message?: string; code?: string; details?: string; hint?: string } | null) {
+    super(describeError(error));
+    this.name = 'ErroDoBanco';
+    this.detalhe =
+      [error?.code, error?.message, error?.details, error?.hint]
+        .filter((parte) => Boolean(parte))
+        .join(' · ') || 'sem detalhe do banco';
+  }
+}
+
 /** Mensagem legível para um erro do PostgREST, sem vazar detalhes internos. */
 export function describeError(error: { message?: string; code?: string } | null): string {
   if (!error) return 'Erro desconhecido.';
@@ -369,12 +388,12 @@ function createCollection<T extends { id: string }>(
   return {
     async list(_dataset?: Dataset) {
       const { data, error } = await query().select('*');
-      if (error) throw new Error(describeError(error));
+      if (error) throw new ErroDoBanco(error);
       return (data ?? []).map((row) => toModel(row as Row));
     },
     async get(id) {
       const { data, error } = await query().select('*').eq('id', id).maybeSingle();
-      if (error) throw new Error(describeError(error));
+      if (error) throw new ErroDoBanco(error);
       return data ? toModel(data as Row) : undefined;
     },
     async save(record) {
@@ -383,7 +402,7 @@ function createCollection<T extends { id: string }>(
         .upsert(toRow(record, ctx), { onConflict: 'id' })
         .select('*')
         .single();
-      if (error) throw new Error(describeError(error));
+      if (error) throw new ErroDoBanco(error);
       return toModel(data as Row);
     },
     async saveMany(records) {
@@ -395,22 +414,22 @@ function createCollection<T extends { id: string }>(
           { onConflict: 'id' },
         )
         .select('*');
-      if (error) throw new Error(describeError(error));
+      if (error) throw new ErroDoBanco(error);
       return (data ?? []).map((row) => toModel(row as Row));
     },
     async remove(id) {
       const { error } = await query().delete().eq('id', id);
-      if (error) throw new Error(describeError(error));
+      if (error) throw new ErroDoBanco(error);
     },
     async removeMany(ids) {
       if (ids.length === 0) return;
       const { error } = await query().delete().in('id', ids);
-      if (error) throw new Error(describeError(error));
+      if (error) throw new ErroDoBanco(error);
     },
     async clear(_dataset) {
       // Remove tudo que o usuário atual pode remover — o RLS limita o alcance.
       const { error } = await query().delete().not('id', 'is', null);
-      if (error) throw new Error(describeError(error));
+      if (error) throw new ErroDoBanco(error);
     },
   };
 }
@@ -465,7 +484,7 @@ export function createSupabaseRepositories(context: () => RemoteContext): Reposi
   ): Promise<T[]> => {
     void collection;
     const { data, error } = await context().client.from(table).select('*').eq(column, value);
-    if (error) throw new Error(describeError(error));
+    if (error) throw new ErroDoBanco(error);
     return (data ?? []).map((row) => toModel(row as Row));
   };
 
@@ -511,7 +530,7 @@ export function createSupabaseRepositories(context: () => RemoteContext): Reposi
         .select('*')
         .eq('org_id', ctx.orgId)
         .maybeSingle();
-      if (error) throw new Error(describeError(error));
+      if (error) throw new ErroDoBanco(error);
       const fallback = createDefaultSettings();
       if (!data) return fallback;
       const row = data as Row;
@@ -545,7 +564,7 @@ export function createSupabaseRepositories(context: () => RemoteContext): Reposi
         },
         { onConflict: 'org_id' },
       );
-      if (error) throw new Error(describeError(error));
+      if (error) throw new ErroDoBanco(error);
       return normalized;
     },
   };
